@@ -1,5 +1,5 @@
-#ifndef LOG_UTILS_H
-#define LOG_UTILS_H
+#ifndef UTILS_H
+#define UTILS_H
 
 int init_db(const char* db_name);
 
