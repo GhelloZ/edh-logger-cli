@@ -2,7 +2,7 @@ package cmd
 
 /*
 #cgo CFLAGS: -I${SRCDIR}/../lib
-#cgo LDFLAGS: -L${SRCDIR}/../lib -lliblib
+#cgo LDFLAGS: -L${SRCDIR}/../lib -lliblib -lsqlite3
 #include "game.h"
 */
 import "C"
