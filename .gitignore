@@ -58,3 +58,6 @@ dkms.conf
 
 # debug information files
 *.dwo
+
+# old stuff
+old_stuff

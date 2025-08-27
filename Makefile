@@ -1,29 +1,21 @@
-# Compiler and flags
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c11 -Ilog
-LDFLAGS = -lsqlite3
+AR = ar
+CFLAGS = -Wall -I./lib
+OBJ = lib/deck.o lib/game.o lib/player.o lib/utils.o lib/stats_calc.o
 
-# Source files
-SRCS = main.c stats_calc.c $(wildcard log/*.c)
+all: edh
 
-# Object files
-OBJS = $(SRCS:.c=.o)
+# Build static C library
+libliblib.a: $(OBJ)
+	$(AR) rcs $@ $^
 
-# Output binary
-TARGET = edh
-
-# Default target
-all: $(TARGET)
-
-# Link object files into the final binary
-$(TARGET): $(OBJS)
-	$(CC) $(OBJS) -o $(TARGET) $(LDFLAGS)
-
-# Compile .c files into .o files
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Clean up
+# Build Go CLI
+edh: libliblib.a
+	go build -o edh
+
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -f $(OBJ) libliblib.a edh
 
