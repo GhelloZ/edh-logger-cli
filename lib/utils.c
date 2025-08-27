@@ -1,17 +1,54 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <sqlite3.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
-int init_db(const char* db_name){
+#define DB_REL_PATH "/.config/edh/database.db"
+
+static char* get_db_path(){
+	const char* home = getenv("HOME");
+	if (!home) {
+		fprintf(stderr, "Could not determine HOME directory\n");
+		return NULL;
+	}
+
+	// Allocate full path: $HOME + DB_REL_PATH
+	size_t len = strlen(home) + strlen(DB_REL_PATH) + 1;
+	char* full_path = malloc(len);
+	if (!full_path) {
+		fprintf(stderr, "Memory allocation failed\n");
+		return NULL;
+	}
+	snprintf(full_path, len, "%s%s", home, DB_REL_PATH);
+
+	// Ensure directory ~/.config/edh exists
+	char dir_path[1024];
+	snprintf(dir_path, sizeof(dir_path), "%s/.config/edh", home);
+	mkdir(dir_path, 0755); // ignore error if it already exists
+
+	return full_path; // caller must free()
+}
+
+int init_db(){
 	sqlite3 *db;
 	char *err_msg = 0;
 	int rc;
 
+	// If no custom path provided, use default
+	char* default_path = NULL;
+	default_path = get_db_path();
+	if (!default_path) return -1;
+	const char* path = default_path;
+
 	// Open (or create) the database file
-	rc = sqlite3_open(db_name, &db);
+	rc = sqlite3_open(path, &db);
 	if (rc != SQLITE_OK) {
 		fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
 		sqlite3_close(db);
-		return rc;
+		free(default_path);
+			return rc;
 	}
 
 	// SQL schema
@@ -71,10 +108,28 @@ int init_db(const char* db_name){
 		fprintf(stderr, "SQL error: %s", err_msg);
 		sqlite3_free(err_msg);
 		sqlite3_close(db);
+		free(default_path);
 		return rc;
 	}
 
 	printf("Database initiated\n");
 	sqlite3_close(db);
+	free(default_path);
 	return SQLITE_OK;
+}
+
+int check_if_db_exists(){
+	// Checks if the database exists and if it doesnt it initializes it
+	char* path = get_db_path();
+	if (!path) return 0;
+
+	FILE *database = fopen(path, "r");
+	if (database){
+		fclose(database);
+		free(path);
+		return 1;
+	}else{
+		free(path);
+		return 0;
+	}
 }
