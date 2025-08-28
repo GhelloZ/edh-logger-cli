@@ -12,15 +12,17 @@ import (
 	"fmt"
 	"strings"
 	"unsafe"
+	timepkg "time"
 
 	"github.com/spf13/cobra"
 )
 
 var(
-	time	int
+	time		int
 	playersCsv	string
 	ranksCsv	string
 	decksCsv	string
+	dateStr		string
 )
 
 func init(){
@@ -40,10 +42,11 @@ func init(){
 		},
 	}
 
-	addCmd.Flags().IntVarP(&time, "time", "t", 0, "Game duration in minutes")
+	addCmd.Flags().IntVarP(&time, "time", "t", 0, "Optional. Game duration in minutes")
 	addCmd.Flags().StringVarP(&playersCsv, "players", "p", "", "Comma separated list of players")
 	addCmd.Flags().StringVarP(&ranksCsv, "ranks", "r", "", "Optional. Comma separated ranks for the players")
 	addCmd.Flags().StringVarP(&decksCsv, "decks","d","","Comma separated listof decks")
+	addCmd.Flags().StringVarP(&dateStr, "date","","","Optional. Defaults to current time. Must be provided in this format: YYYYMMDDHHmm")
 	addCmd.MarkFlagRequired("players")
 	addCmd.MarkFlagRequired("decks")
 
@@ -74,6 +77,20 @@ func runAddGame(){
 		cDecks[i] = C.CString(s)
 	}
 
+	// Parsing date
+	var timestamp int64
+	if dateStr != "" {
+		parsed, err := timepkg.Parse("2006-01-02 15:04", dateStr)
+		if err != nil {
+			fmt.Printf("Invalid date format. Please use 'YYYY-MM-DD HH:MM'\n")
+			return
+		}
+		timestamp = parsed.Unix()
+	} else {
+		timestamp = timepkg.Now().Unix()
+		timestamp -= int64(time*60)
+	}
+
 	// Handling optional ranks field. If nothing is provided, nil will be
 	// provided to C.add_game()
 	var cRanks []*C.char
@@ -95,6 +112,7 @@ func runAddGame(){
 		cRanksPtr,
 		C.ushort(len(playerList)),
 		C.ushort(time),
+		C.longlong(timestamp),
 	)
 
 	// Freeing memory
@@ -117,4 +135,5 @@ func runAddGame(){
 	if time > 0 {
 		fmt.Printf("\tTime:\t\t%d minutes\n", time)
 	}
+	fmt.Printf("\tDate:\t\t%s\n", timepkg.Unix(timestamp, 0).Format("2006-01-02 15:04"))
 }

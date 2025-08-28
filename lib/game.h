@@ -6,7 +6,8 @@ int add_game(
 		char** decks,
 		char** ranks,
 		unsigned short int count,
-		unsigned short int time
+		unsigned short int time,
+		long long int timestamp
 		);
 int delete_game();
 int list_games();

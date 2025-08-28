@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <sqlite3.h>
 #include "utils.h"
 
@@ -7,7 +8,8 @@ int add_game(
 		char** decks,
 		char** ranks,
 		unsigned short int count,
-		unsigned short int time
+		unsigned short int time,
+		long long int timestamp
 		){
 	/**********************
 	 * edh game add [-t MINUTES] -p Mario,Luigi[,Peach[,Browser\ Jr]] [-r 1,2,3,3] -d Marwyn\ Ramp,Marchesa[,Funny\ Artifact\ Boy[,Dinasours]]
@@ -26,7 +28,7 @@ int add_game(
 	 *								Decks used by the players in the game. Must be the same number of players specified
 	 *								and in the same order
 	 */
-	fprintf(stderr,"Not yet implemented\n");
+	fprintf(stderr,"WIP\n");
 
 	if (!players || !decks) {
 		fprintf(stderr, "game.c: add_game: players and decks must not be NULL\n");
@@ -37,10 +39,10 @@ int add_game(
 		return -1;
 	}
 
-	/*
 	fprintf(stderr, "game.c: add_game:\n");
 	fprintf(stderr, "\tCount: %hu\n", count);
 	fprintf(stderr, "\tTime: %hu\n", time);
+	fprintf(stderr, "\tTimestamp: %lld\n", timestamp);
 
 	for (unsigned short int i = 0; i < count; i++) {
 		const char *pstr = "(null)";
@@ -55,9 +57,22 @@ int add_game(
 		fprintf(stderr, "\tDeck[%hu]: %s\n", i, dstr);
 		fprintf(stderr, "\tRank[%hu]: %s\n", i, rstr);
 	}
-	*/
 
-	return -1;
+	sqlite3 *db;
+	char* err_msg = 0;
+	int rc;
+
+	rc = sqlite3_open(get_db_path(), &db);
+	if (rc != SQLITE_OK) {
+		fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
+		sqlite3_close(db);
+		return rc;
+	}
+
+//	const char* sql_query = 
+
+		sqlite3_close(db);
+	return 0;
 }
 
 int delete_game(){
