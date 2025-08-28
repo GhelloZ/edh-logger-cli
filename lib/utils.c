@@ -7,7 +7,7 @@
 
 #define DB_REL_PATH "/.config/edh/database.db"
 
-static char* get_db_path(){
+char* get_db_path(){
 	const char* home = getenv("HOME");
 	if (!home) {
 		fprintf(stderr, "Could not determine HOME directory\n");
