@@ -8,12 +8,12 @@ int add_game(
 		char** decks,
 		char** ranks,
 		unsigned short int count,
-		unsigned short int time,
+		unsigned short int duration,
 		long long int timestamp
 		){
 	/**********************
 	 * edh game add [-t MINUTES] -p Mario,Luigi[,Peach[,Browser\ Jr]] [-r 1,2,3,3] -d Marwyn\ Ramp,Marchesa[,Funny\ Artifact\ Boy[,Dinasours]]
-	 * 		-t|--time MINUTES: 	Optional, specifies game time in minutes
+	 * 		-t|--time MINUTES:		Optional, specifies game time in minutes
 	 * 		-p|--players PLAYER1,PLAYER2[,PLAYER3[,PLAYER4]]:
 	 * 								List of participating players in reverse order of death (first is the winner). 
 	 * 								Can list from 2 to 6 players
@@ -39,9 +39,10 @@ int add_game(
 		return -1;
 	}
 
+	/*
 	fprintf(stderr, "game.c: add_game:\n");
 	fprintf(stderr, "\tCount: %hu\n", count);
-	fprintf(stderr, "\tTime: %hu\n", time);
+	fprintf(stderr, "\tTime: %hu\n", duration);
 	fprintf(stderr, "\tTimestamp: %lld\n", timestamp);
 
 	for (unsigned short int i = 0; i < count; i++) {
@@ -57,9 +58,10 @@ int add_game(
 		fprintf(stderr, "\tDeck[%hu]: %s\n", i, dstr);
 		fprintf(stderr, "\tRank[%hu]: %s\n", i, rstr);
 	}
+	*/
 
-	sqlite3 *db;
-	char* err_msg = 0;
+	sqlite3 *db = NULL;
+	sqlite3_stmt* stmt = NULL;
 	int rc;
 
 	rc = sqlite3_open(get_db_path(), &db);
@@ -69,9 +71,71 @@ int add_game(
 		return rc;
 	}
 
-//	const char* sql_query = 
+	// Games
+	const char* sql_game = 
+		"INSERT INTO Games (date_played, duration_min, comment) "
+		"VALUES (?, ?, NULL);";
 
+	rc = sqlite3_prepare_v2(db, sql_game, -1, &stmt, NULL);
+	if (rc != SQLITE_OK){
+		fprintf(stderr, "Failed to prepare Games insert: %s\n", sqlite3_errmsg(db));
 		sqlite3_close(db);
+		return -1;
+	}
+
+	sqlite3_bind_int64(stmt, 1, timestamp);
+	sqlite3_bind_int(stmt, 2, duration);
+
+	rc = sqlite3_step(stmt);
+	if (rc != SQLITE_DONE){
+		fprintf(stderr,"Failed to execute Games insert: %s\n", sqlite3_errmsg(db));
+		sqlite3_finalize(stmt);
+		sqlite3_close(db);
+		return -1;
+	}
+	sqlite3_finalize(stmt);
+
+	sqlite3_int64 game_id = sqlite3_last_insert_rowid(db);
+
+	// GamePlayers
+	const char* sql_gameplayers = 
+		"INSERT INTO GamePlayers (game_id, player_id, deck_id, rank)"
+		"VALUES (?, "
+		" (SELECT player_id FROM Players WHERE name = ?), "
+		" (SELECT deck_id FROM Decks WHERE title = ?), "
+		" ? "
+		");";
+
+	rc = sqlite3_prepare_v2(db, sql_gameplayers, -1, &stmt, NULL);
+	if (rc != SQLITE_OK){
+		fprintf(stderr, "Failed to prepare GamePlayers insert: %s\n", sqlite3_errmsg(db));
+		sqlite3_close(db);
+		return -1;
+	}
+
+	for (int i=0; i<count; i++){
+		sqlite3_bind_int64(stmt, 1, game_id);
+		sqlite3_bind_text(stmt, 2, players[i], -1, SQLITE_STATIC);
+		sqlite3_bind_text(stmt, 3, decks[i], -1, SQLITE_STATIC);
+
+		if(ranks != NULL){
+			sqlite3_bind_int(stmt, 4, atoi(ranks[i]));
+		} else {
+			sqlite3_bind_int(stmt,4, i+1);
+		}
+
+		rc = sqlite3_step(stmt);
+		if (rc != SQLITE_DONE){
+			fprintf(stderr, "Failed to insert GamePlayers entry: %s\n", sqlite3_errmsg(db));
+			sqlite3_finalize(stmt);
+            sqlite3_close(db);
+            return -1;
+		}
+		sqlite3_reset(stmt);
+	}
+
+	sqlite3_finalize(stmt);
+	sqlite3_close(db);
 	return 0;
 }
 

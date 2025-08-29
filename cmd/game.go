@@ -32,7 +32,7 @@ func init(){
 		Use:	"game",
 		Short:	"Manage Games",
 	}
-	rootCmd.AddCommand(gameCmd)
+	RootCmd.AddCommand(gameCmd)
 
 	addCmd := &cobra.Command{
 		Use:	"add",
