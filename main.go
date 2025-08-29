@@ -38,7 +38,7 @@ func main(){
 		fmt.Println("Database not found, initializing...")
 		cPath := C.CString(dbPath)
 		defer C.free(unsafe.Pointer(cPath))
-		C.init_db(cPath)
+		C.init_db()
 	}
 
 	cmd.Execute()

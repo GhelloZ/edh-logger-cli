@@ -4,6 +4,9 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <regex.h>
+
+#include "utils.h"
 
 #define DB_REL_PATH "/.config/edh/database.db"
 
@@ -48,7 +51,7 @@ int init_db(){
 		fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
 		sqlite3_close(db);
 		free(default_path);
-			return rc;
+		return rc;
 	}
 
 	// SQL schema
@@ -121,15 +124,32 @@ int init_db(){
 int check_if_db_exists(){
 	// Checks if the database exists and if it doesnt it initializes it
 	char* path = get_db_path();
-	if (!path) return 0;
+	if (!path) return DB_NO_PATH;
 
 	FILE *database = fopen(path, "r");
 	if (database){
 		fclose(database);
 		free(path);
-		return 1;
+		return DB_EXISTS;
 	}else{
 		free(path);
-		return 0;
+		return DB_NOT_FOUND;
 	}
+}
+
+int validate_regex(const char* string, const char* pattern){
+	/************************
+	 * Returns 1 if the string matches the pattern,
+	 * 0 otherwise
+	 ***********************/
+	if (!string || !pattern) return REGEX_NULL_PARAM;
+	regex_t re;
+	int flags = REG_EXTENDED | REG_NOSUB;
+	if (regcomp(&re, pattern, flags) != 0) return REGEX_COMPILE_ERR;
+	int ret = regexec(&re, string, 0, NULL, 0);
+	regfree(&re);
+
+	if(ret == 0) 			return REGEX_OK;
+	if(ret == REG_NOMATCH)	return REGEX_NO_MATCH;
+	return REGEX_UNDEFINED_ERR;
 }

@@ -30,11 +30,11 @@ func init(){
 
 	gameCmd := &cobra.Command{
 		Use:	"game",
-		Short:	"Manage Games",
+		Short:	"Manage ggmes",
 	}
 	RootCmd.AddCommand(gameCmd)
 
-	addCmd := &cobra.Command{
+	addGameCmd := &cobra.Command{
 		Use:	"add",
 		Short:	"Add a new game to the log",
 		Run:	func (cmd *cobra.Command, args []string){
@@ -42,15 +42,15 @@ func init(){
 		},
 	}
 
-	addCmd.Flags().IntVarP(&time, "time", "t", 0, "Optional. Game duration in minutes")
-	addCmd.Flags().StringVarP(&playersCsv, "players", "p", "", "Comma separated list of players")
-	addCmd.Flags().StringVarP(&ranksCsv, "ranks", "r", "", "Optional. Comma separated ranks for the players")
-	addCmd.Flags().StringVarP(&decksCsv, "decks","d","","Comma separated listof decks")
-	addCmd.Flags().StringVarP(&dateStr, "date","","","Optional. Defaults to current time. Must be provided in this format: YYYYMMDDHHmm")
-	addCmd.MarkFlagRequired("players")
-	addCmd.MarkFlagRequired("decks")
+	addGameCmd.Flags().IntVarP(&time, "time", "t", 0, "Optional. Game duration in minutes")
+	addGameCmd.Flags().StringVarP(&playersCsv, "players", "p", "", "Comma separated list of players")
+	addGameCmd.Flags().StringVarP(&ranksCsv, "ranks", "r", "", "Optional. Comma separated ranks for the players")
+	addGameCmd.Flags().StringVarP(&decksCsv, "decks","d","","Comma separated listof decks")
+	addGameCmd.Flags().StringVarP(&dateStr, "date","","","Optional. Defaults to current time. Must be provided in this format: YYYYMMDDHHmm")
+	addGameCmd.MarkFlagRequired("players")
+	addGameCmd.MarkFlagRequired("decks")
 
-	gameCmd.AddCommand(addCmd)
+	gameCmd.AddCommand(addGameCmd)
 }
 
 func runAddGame(){
@@ -106,7 +106,7 @@ func runAddGame(){
 	}
 
 	// Calling add_game() from game.h to actually add the game
-	C.add_game(
+	addGameReturn := C.add_game(
 		(**C.char)(unsafe.Pointer(&cPlayers[0])),
 		(**C.char)(unsafe.Pointer(&cDecks[0])),
 		cRanksPtr,
@@ -124,6 +124,11 @@ func runAddGame(){
 	}
 	for _, s := range cRanks {
 		C.free(unsafe.Pointer(s))
+	}
+
+	if addGameReturn != 0 {
+		fmt.Printf("Game could not be logged\n")
+		return
 	}
 
 	fmt.Printf("Added game: \n")
