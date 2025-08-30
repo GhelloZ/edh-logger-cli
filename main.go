@@ -16,7 +16,6 @@ import(
 	"edh/cmd"
 	"os"
 	"path/filepath"
-	"unsafe"
 )
 
 func main(){
@@ -34,11 +33,12 @@ func main(){
 
 	// Checks if the database already exists
 	dbCheck := C.check_if_db_exists()
-	if dbCheck == 0 {
+	fmt.Println("main.go log: ", dbCheck)
+	if dbCheck == C.DB_NOT_FOUND {
 		fmt.Println("Database not found, initializing...")
-		cPath := C.CString(dbPath)
-		defer C.free(unsafe.Pointer(cPath))
 		C.init_db()
+	} else if dbCheck == C.DB_NO_PATH {
+		fmt.Println("Invalid path, check source code, fix and make")
 	}
 
 	cmd.Execute()
