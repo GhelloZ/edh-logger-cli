@@ -1,0 +1,33 @@
+name: Build and Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Select version bump type"
+        required: true
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Build project
+      run: make clean && make
+
+    - name: Create release
+      uses: rymndhng/release-on-push-action@v0.31.0
+      with:
+        bump_version_scheme: ${{ github.event.inputs.bump }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
