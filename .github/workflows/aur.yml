@@ -13,7 +13,7 @@ jobs:
 
       - name: Clone AUR repo
         run: |
-          git clone "AUR_REPO" aur-repo
+          git clone "$AUR_REPO" aur-repo
         env:
           AUR_REPO: ${{ vars.AUR_REPO }}
 
