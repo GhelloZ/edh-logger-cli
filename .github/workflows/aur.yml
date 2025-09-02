@@ -11,6 +11,10 @@ jobs:
       - name: Checkout AUR repo
         uses: actions/checkout@v3
 
+      - name: Add aur.archlinux.org to known_hosts
+        run: |
+          ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts
+
       - name: Clone AUR repo
         run: |
           git clone "$AUR_REPO" aur-repo
