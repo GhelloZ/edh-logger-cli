@@ -101,3 +101,6 @@ jobs:
           echo "Release created: $RELEASE_URL"
           echo "release_url=$RELEASE_URL" >> $GITHUB_OUTPUT
 
+  call-publish-to-aur:
+    name: Publish release to AUR
+    uses: ./.github/workflows/aur.yml

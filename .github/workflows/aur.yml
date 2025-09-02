@@ -1,8 +1,6 @@
 name: Publish new release to AUR 
 
-on:
-  release:
-    types: [published]
+on: workflow_call
 
 jobs:
   publish-to-aur:
