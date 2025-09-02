@@ -1,33 +1,144 @@
-name: Build and Release
+name: Build & Release on pushes to releases branch
 
 on:
-  workflow_dispatch:
-    inputs:
-      bump:
-        description: "Select version bump type"
-        required: true
-        default: patch
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
+  push:
+    branches:
+      - 'releases'
+
+permissions:
+  contents: write
 
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+      - name: Checkout repository (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Build project
-      run: make clean && make
+      - name: Read version
+        id: read_version
+        run: |
+          set -euo pipefail
 
-    - name: Create release
-      uses: rymndhng/release-on-push-action@v0.28.0
-      with:
-        bump_version_scheme: ${{ github.event.inputs.bump }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          if [ ! -f metadata/version ]; then
+            echo "ERROR: metadata/version not found"
+            exit 1
+          fi
+
+          VERSION=$(sed -n '1s/^[[:space:]]*//;s/[[:space:]]*$//p' metadata/version)
+
+          if [ -z "$VERSION" ]; then
+            echo "ERROR: metadata/version is empty"
+            exit 1
+          fi
+
+          # Accept semantic numeric prefix with any trailing text (e.g. 0.1.0-alpha)
+          if ! echo "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+.*$'; then
+            echo "WARNING: version '$VERSION' does not match <major>.<minor>.<patch> prefix pattern"
+          fi
+
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Version read: $VERSION"
+
+      - name: Set changelog file path
+        run: |
+          set -euo pipefail
+          if [ ! -f metadata/changelog.md ]; then
+            echo "ERROR: metadata/changelog.md not found"
+            exit 1
+          fi
+          echo "CHANGELOG_FILE=metadata/changelog.md" >> $GITHUB_ENV
+
+      - name: Ensure version and changelog updated in this push
+        run: |
+          set -euo pipefail
+
+          BEFORE="${{ github.event.before }}"
+          HEAD="${{ github.sha }}"
+
+          # If this is the branch's initial push, github.event.before will be all zeros.
+          if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            echo "Initial branch push detected (before is all zeros). Skipping metadata-change check."
+            exit 0
+          fi
+
+          echo "Checking changed files between $BEFORE and $HEAD..."
+          git --no-pager diff --name-only "$BEFORE" "$HEAD" > changed_files.txt || true
+          cat changed_files.txt
+
+          # require both files to be present in the changed file list
+          if ! grep -qxF "metadata/version" changed_files.txt; then
+            echo "ERROR: metadata/version was NOT changed in this push. Please update metadata/version for the release."
+            exit 1
+          fi
+
+          if ! grep -qxF "metadata/changelog.md" changed_files.txt; then
+            echo "ERROR: metadata/changelog.md was NOT changed in this push. Please update metadata/changelog.md for the release."
+            exit 1
+          fi
+
+          echo "OK: both metadata/version and metadata/changelog.md were changed in this push."
+
+      - name: Build (make clean && make)
+        run: |
+          set -euo pipefail
+          make clean && make
+
+      - name: Package source (zip + tar.gz)
+        run: |
+          set -euo pipefail
+          SRC_TARBALL="source-${VERSION}.tar.gz"
+          SRC_ZIP="source-${VERSION}.zip"
+          git archive --format=tar.gz -o "$SRC_TARBALL" HEAD
+          git archive --format=zip -o "$SRC_ZIP" HEAD
+          echo "SRC_TARBALL=$SRC_TARBALL" >> $GITHUB_ENV
+          echo "SRC_ZIP=$SRC_ZIP" >> $GITHUB_ENV
+
+      - name: Validate compiled binary (expected path: $PWD/build/edh)
+        id: validate_binary
+        run: |
+          set -euo pipefail
+          BINARY_PATH="$PWD/build/edh"
+          if [ ! -f "$BINARY_PATH" ]; then
+            echo "ERROR: expected binary not found at $BINARY_PATH"
+            echo "Makefile should place the binary at build/edh"
+            exit 1
+          fi
+          if [ ! -s "$BINARY_PATH" ]; then
+            echo "ERROR: binary at $BINARY_PATH is empty"
+            exit 1
+          fi
+          echo "BINARY_PATH=$BINARY_PATH" >> $GITHUB_ENV
+          ls -l "$BINARY_PATH"
+
+      - name: Authenticate gh (GitHub CLI) with GITHUB_TOKEN
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          echo "$GITHUB_TOKEN" | gh auth login --with-token
+
+      - name: Create release and upload assets
+        env:
+          VERSION: ${{ env.VERSION }}
+          CHANGELOG_FILE: ${{ env.CHANGELOG_FILE }}
+          BINARY_PATH: ${{ env.BINARY_PATH }}
+          SRC_TARBALL: ${{ env.SRC_TARBALL }}
+          SRC_ZIP: ${{ env.SRC_ZIP }}
+        run: |
+          set -euo pipefail
+          tag="v${VERSION}"
+          echo "Creating release with tag: $tag"
+
+          gh release create "$tag" \
+            "$BINARY_PATH" "$SRC_TARBALL" "$SRC_ZIP" \
+            --title "$VERSION" \
+            --notes-file "$CHANGELOG_FILE" \
+            --prerelease=false
+
+          RELEASE_URL=$(gh release view "$tag" --json htmlUrl -q .htmlUrl)
+          echo "Release created: $RELEASE_URL"
+          echo "release_url=$RELEASE_URL" >> $GITHUB_OUTPUT
+
