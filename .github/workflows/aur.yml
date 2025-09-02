@@ -31,6 +31,6 @@ jobs:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
 
       - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.8.1
+        uses: webfactory/ssh-agent@v0.9.1
         with:
           ssh-private-key: ${{ secrets.AUR_PRIVATE_SSH_KEY }}
