@@ -1,4 +1,4 @@
-name: Build & Release on pushes to releases branch
+name: Build and release on pushes to releases branch
 
 on:
   push:
@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   build-and-release:
+    name: Build and release on push
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository (full history)
@@ -96,7 +97,7 @@ jobs:
           echo "SRC_TARBALL=$SRC_TARBALL" >> $GITHUB_ENV
           echo "SRC_ZIP=$SRC_ZIP" >> $GITHUB_ENV
 
-      - name: Validate compiled binary (expected path: $PWD/build/edh)
+      - name: Validate compiled binary
         id: validate_binary
         run: |
           set -euo pipefail
