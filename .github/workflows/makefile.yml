@@ -123,6 +123,7 @@ jobs:
 
       - name: Create release and upload assets
         env:
+          GH_TOKEN: ${{ secrets.token }}
           VERSION: ${{ env.VERSION }}
           CHANGELOG_FILE: ${{ env.CHANGELOG_FILE }}
           BINARY_PATH: ${{ env.BINARY_PATH }}
