@@ -11,7 +11,12 @@ BIN := $(BUILD_DIR)/edh
 
 .PHONY: all clean
 
-all: $(BIN)
+all: prepare-version $(BIN) cleanup-version
+
+prepare-version:
+	@if [ -f metadata/version ]; then \
+	  cp metadata/version cmd/version; \
+	fi
 
 # Archive of C objects (placed in build/)
 $(LIB_ARCHIVE): $(BUILD_OBJ)
@@ -30,6 +35,9 @@ $(BIN): $(LIB_ARCHIVE)
 	@mkdir -p $(BUILD_DIR)
 	# Tell cgo/linker to look in build/ for libedh.a and link with -ledh
 	CGO_LDFLAGS="-L$(BUILD_DIR) -ledh" go build -o $(BIN)
+
+cleanup-version:
+	-@rm -f cmd/version
 
 clean:
 	rm -rf $(BUILD_DIR)

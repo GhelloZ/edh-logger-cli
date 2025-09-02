@@ -82,41 +82,17 @@ jobs:
 
           echo "OK: both metadata/version and metadata/changelog.md were changed in this push."
 
-      - name: Build (make clean && make)
-        run: |
-          set -euo pipefail
-          make clean && make
-
-      - name: Validate compiled binary
-        id: validate_binary
-        run: |
-          set -euo pipefail
-          BINARY_PATH="$PWD/build/edh"
-          if [ ! -f "$BINARY_PATH" ]; then
-            echo "ERROR: expected binary not found at $BINARY_PATH"
-            echo "Makefile should place the binary at build/edh"
-            exit 1
-          fi
-          if [ ! -s "$BINARY_PATH" ]; then
-            echo "ERROR: binary at $BINARY_PATH is empty"
-            exit 1
-          fi
-          echo "BINARY_PATH=$BINARY_PATH" >> $GITHUB_ENV
-          ls -l "$BINARY_PATH"
-
-      - name: Create release and upload assets
+      - name: Create release
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ env.VERSION }}
           CHANGELOG_FILE: ${{ env.CHANGELOG_FILE }}
-          BINARY_PATH: ${{ env.BINARY_PATH }}
         run: |
           set -euo pipefail
           tag="v${VERSION}"
           echo "Creating release with tag: $tag"
 
           gh release create "$tag" \
-            "$BINARY_PATH" \
             --title "$VERSION" \
             --notes-file "$CHANGELOG_FILE" \
             --prerelease=false
