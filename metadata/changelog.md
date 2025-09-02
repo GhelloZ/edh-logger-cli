@@ -3,6 +3,6 @@
 ## Fixes
 none
 ## GitHub stuff
-- [x] I **MIGHT** have fixed the workflow
+- [x] well i didn't, but maybe i fixed it now
 ## Contributors
 Just me for now! If you're interested, fork the project and make all the pull requests you want and you'll be listed here!
