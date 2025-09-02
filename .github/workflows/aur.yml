@@ -1,0 +1,38 @@
+name: Publish new release to AUR 
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish-to-aur:
+    runs-on: ubuntu-latest
+    name: Publish new release to AUR
+    environment: aur
+    steps:
+      - name: Checkout AUR repo
+        uses: actions/checkout@v3
+
+      - name: Clone AUR repo
+        run: |
+          git clone "AUR_REPO" aur-repo
+        env:
+          AUR_REPO: ${{ vars.AUR_REPO }}
+
+      - name: Configure git
+        run: |
+          cd aur-repo
+          git config user.name "${{ vars.AUR_USERNAME }} - GitHub Release Workflow"
+          git config user.email "${{ vars.AUR_EMAIL }}"
+
+      - name: Run update script
+        run: |
+          cd aur-repo
+          ./update.sh
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.8.1
+        with:
+          ssh-private-key: ${{ secrets.AUR_PRIVATE_SSH_KEY }}
