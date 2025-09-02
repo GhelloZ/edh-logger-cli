@@ -26,14 +26,14 @@ func main(){
 		os.Exit(1)
 	}
 	dbPath := filepath.Join(home, ".config", "edh", "database.db")
-	fmt.Println("main.go log: ", dbPath)
+//	fmt.Println("main.go log: ", dbPath)
 
 	// Creates file path if missing
 	os.MkdirAll(filepath.Dir(dbPath), 0755)
 
 	// Checks if the database already exists
 	dbCheck := C.check_if_db_exists()
-	fmt.Println("main.go log: ", dbCheck)
+//	fmt.Println("main.go log: ", dbCheck)
 	if dbCheck == C.DB_NOT_FOUND {
 		fmt.Println("Database not found, initializing...")
 		C.init_db()
