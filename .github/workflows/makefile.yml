@@ -87,16 +87,6 @@ jobs:
           set -euo pipefail
           make clean && make
 
-      - name: Package source (zip + tar.gz)
-        run: |
-          set -euo pipefail
-          SRC_TARBALL="source-${VERSION}.tar.gz"
-          SRC_ZIP="source-${VERSION}.zip"
-          git archive --format=tar.gz -o "$SRC_TARBALL" HEAD
-          git archive --format=zip -o "$SRC_ZIP" HEAD
-          echo "SRC_TARBALL=$SRC_TARBALL" >> $GITHUB_ENV
-          echo "SRC_ZIP=$SRC_ZIP" >> $GITHUB_ENV
-
       - name: Validate compiled binary
         id: validate_binary
         run: |
@@ -114,28 +104,19 @@ jobs:
           echo "BINARY_PATH=$BINARY_PATH" >> $GITHUB_ENV
           ls -l "$BINARY_PATH"
 
-      - name: Authenticate GitHub CLI
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          gh auth status || echo "Already authenticated"
-
       - name: Create release and upload assets
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ env.VERSION }}
           CHANGELOG_FILE: ${{ env.CHANGELOG_FILE }}
           BINARY_PATH: ${{ env.BINARY_PATH }}
-          SRC_TARBALL: ${{ env.SRC_TARBALL }}
-          SRC_ZIP: ${{ env.SRC_ZIP }}
         run: |
           set -euo pipefail
           tag="v${VERSION}"
           echo "Creating release with tag: $tag"
 
           gh release create "$tag" \
-            "$BINARY_PATH" "$SRC_TARBALL" "$SRC_ZIP" \
+            "$BINARY_PATH" \
             --title "$VERSION" \
             --notes-file "$CHANGELOG_FILE" \
             --prerelease=false
