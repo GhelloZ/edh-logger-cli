@@ -114,12 +114,12 @@ jobs:
           echo "BINARY_PATH=$BINARY_PATH" >> $GITHUB_ENV
           ls -l "$BINARY_PATH"
 
-      - name: Authenticate gh (GitHub CLI) with GITHUB_TOKEN
+      - name: Authenticate GitHub CLI
         env:
-          GH_TOKEN: ${{ secrets.TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          echo "$GH_TOKEN" | gh auth login --with-token
+          gh auth status || echo "Already authenticated"
 
       - name: Create release and upload assets
         env:
@@ -139,7 +139,7 @@ jobs:
             --notes-file "$CHANGELOG_FILE" \
             --prerelease=false
 
-          RELEASE_URL=$(gh release view "$tag" --json Url -q .Url)
+          RELEASE_URL=$(gh release view "$tag" --json url -q .url)
           echo "Release created: $RELEASE_URL"
           echo "release_url=$RELEASE_URL" >> $GITHUB_OUTPUT
 
