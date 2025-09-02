@@ -2,7 +2,7 @@ package cmd
 
 /*
 #cgo CFLAGS: -I${SRCDIR}/../lib
-#cgo LDFLAGS: -L${SRCDIR}/../lib -lliblib -lsqlite3
+#cgo LDFLAGS: -L${SRCDIR}/../build -ledh -lsqlite3
 #include "deck.h"
 #include <stdlib.h>
 */

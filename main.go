@@ -2,7 +2,7 @@ package main
 
 /*
 #cgo CFLAGS: -I./lib
-#cgo LDFLAGS: -L. -lliblib
+#cgo LDFLAGS: -L./build -ledh
 #include <stdlib.h>
 #include "game.h"
 #include "deck.h"
