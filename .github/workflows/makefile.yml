@@ -139,7 +139,7 @@ jobs:
             --notes-file "$CHANGELOG_FILE" \
             --prerelease=false
 
-          RELEASE_URL=$(gh release view "$tag" --json htmlUrl -q .htmlUrl)
+          RELEASE_URL=$(gh release view "$tag" --json Url -q .Url)
           echo "Release created: $RELEASE_URL"
           echo "release_url=$RELEASE_URL" >> $GITHUB_OUTPUT
 
