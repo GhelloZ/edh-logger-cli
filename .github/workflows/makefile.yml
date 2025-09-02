@@ -116,10 +116,10 @@ jobs:
 
       - name: Authenticate gh (GitHub CLI) with GITHUB_TOKEN
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          echo "$GITHUB_TOKEN" | gh auth login --with-token
+          echo "$GH_TOKEN" | gh auth login --with-token
 
       - name: Create release and upload assets
         env:
