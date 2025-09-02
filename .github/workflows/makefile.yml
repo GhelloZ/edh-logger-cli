@@ -116,7 +116,7 @@ jobs:
 
       - name: Authenticate GitHub CLI
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.token }}
         run: |
           set -euo pipefail
           gh auth status || echo "Already authenticated"
