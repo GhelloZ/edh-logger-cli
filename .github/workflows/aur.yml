@@ -11,6 +11,11 @@ jobs:
       - name: Checkout AUR repo
         uses: actions/checkout@v3
 
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.AUR_PRIVATE_SSH_KEY }}
+
       - name: Add aur.archlinux.org to known_hosts
         run: |
           ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts
@@ -33,8 +38,3 @@ jobs:
           ./update.sh
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.9.1
-        with:
-          ssh-private-key: ${{ secrets.AUR_PRIVATE_SSH_KEY }}

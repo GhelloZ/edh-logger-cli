@@ -3,6 +3,6 @@
 ## Fixes
 none
 ## GitHub stuff
-- [x] well i didn't, but maybe i fixed it now
+- [x] why am i this autistic
 ## Contributors
 Just me for now! If you're interested, fork the project and make all the pull requests you want and you'll be listed here!
