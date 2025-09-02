@@ -116,7 +116,7 @@ jobs:
 
       - name: Authenticate gh (GitHub CLI) with GITHUB_TOKEN
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.TOKEN }}
         run: |
           set -euo pipefail
           echo "$GH_TOKEN" | gh auth login --with-token
