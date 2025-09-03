@@ -2,9 +2,11 @@
 - [x] Updated README.md with installation and build instructions
 - [x] Created CONTRIBUTING.md
 ## Fixes
-none
+- [x] Moved metadata/version to metadata/VERSION
+- [x] Moved metadata/changelog.md to metadata/CHANGELOG.md
 ## GitHub stuff
-- [ ] why am i this autistic
+- [x] Added banner to README.md
+- [ ] Fix workflows
 ## TODO
 ### Logging commands
 - [ ] Add `deck add` command
