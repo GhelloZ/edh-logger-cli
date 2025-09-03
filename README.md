@@ -3,6 +3,8 @@
 [![Sponsored by GitAds](https://gitads.dev/v1/ad-serve?source=ghelloz/edhstats@github)](https://gitads.dev/v1/ad-track?source=ghelloz/edhstats@github)
 > Id the ad bothers you, just install and turn on an adblocker, or turn it off to give me some small money
 
+![banner](https://github.com/GhelloZ/edh-logger-cli/blob/42940ebf69a69de04c99710a8b8a72bfe165f345/metadata/banner.png)
+
 Simple Go CLI tool to log MTG Commander games and get stats for both decks and players. 
 When it'll be complete I'll worry about writing a proper README.md file. 
 
