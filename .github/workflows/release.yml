@@ -23,15 +23,15 @@ jobs:
         run: |
           set -euo pipefail
 
-          if [ ! -f metadata/version ]; then
-            echo "ERROR: metadata/version not found"
+          if [ ! -f metadata/VERSION ]; then
+            echo "ERROR: metadata/VERSION not found"
             exit 1
           fi
 
-          VERSION=$(sed -n '1s/^[[:space:]]*//;s/[[:space:]]*$//p' metadata/version)
+          VERSION=$(sed -n '1s/^[[:space:]]*//;s/[[:space:]]*$//p' metadata/VERSION)
 
           if [ -z "$VERSION" ]; then
-            echo "ERROR: metadata/version is empty"
+            echo "ERROR: metadata/VERSION is empty"
             exit 1
           fi
 
@@ -46,11 +46,11 @@ jobs:
       - name: Set changelog file path
         run: |
           set -euo pipefail
-          if [ ! -f metadata/changelog.md ]; then
-            echo "ERROR: metadata/changelog.md not found"
+          if [ ! -f metadata/CHANGELOG.md ]; then
+            echo "ERROR: metadata/CHANGELOG.md not found"
             exit 1
           fi
-          echo "CHANGELOG_FILE=metadata/changelog.md" >> $GITHUB_ENV
+          echo "CHANGELOG_FILE=metadata/CHANGELOG.md" >> $GITHUB_ENV
 
       - name: Ensure version and changelog updated in this push
         run: |
@@ -70,17 +70,17 @@ jobs:
           cat changed_files.txt
 
           # require both files to be present in the changed file list
-          if ! grep -qxF "metadata/version" changed_files.txt; then
-            echo "ERROR: metadata/version was NOT changed in this push. Please update metadata/version for the release."
+          if ! grep -qxF "metadata/VERSION" changed_files.txt; then
+            echo "ERROR: metadata/VERSION was NOT changed in this push. Please update metadata/VERSION for the release."
             exit 1
           fi
 
-          if ! grep -qxF "metadata/changelog.md" changed_files.txt; then
-            echo "ERROR: metadata/changelog.md was NOT changed in this push. Please update metadata/changelog.md for the release."
+          if ! grep -qxF "metadata/CHANGELOG.md" changed_files.txt; then
+            echo "ERROR: metadata/CHANGELOG.md was NOT changed in this push. Please update metadata/CHANGELOG.md for the release."
             exit 1
           fi
 
-          echo "OK: both metadata/version and metadata/changelog.md were changed in this push."
+          echo "OK: both metadata/VERSION and metadata/CHANGELOG.md were changed in this push."
 
       - name: Create release
         env:

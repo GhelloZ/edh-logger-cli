@@ -14,8 +14,8 @@ BIN := $(BUILD_DIR)/edh
 all: prepare-version $(BIN) cleanup-version
 
 prepare-version:
-	@if [ -f metadata/version ]; then \
-	  cp metadata/version cmd/version; \
+	@if [ -f metadata/VERSION ]; then \
+	  cp metadata/VERSION cmd/VERSION; \
 	fi
 
 # Archive of C objects (placed in build/)
@@ -37,7 +37,7 @@ $(BIN): $(LIB_ARCHIVE)
 	CGO_LDFLAGS="-L$(BUILD_DIR) -ledh" go build -o $(BIN)
 
 cleanup-version:
-	-@rm -f cmd/version
+	-@rm -f cmd/VERSION
 
 clean:
 	rm -rf $(BUILD_DIR)

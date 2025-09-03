@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-//go:embed version
+//go:embed VERSION
 var version	string
 
 func init(){
