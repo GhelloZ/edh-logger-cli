@@ -8,6 +8,11 @@
 Simple Go CLI tool to log MTG Commander games and get stats for both decks and players. 
 When it'll be complete I'll worry about writing a proper README.md file. 
 
+<!--
+# Usage
+![Demo](link-to-demo.gif)
+blah blah use it like this blah blah
+-->
 # Dependencies
 ## Compiling dependencies
 - [gcc](https://gcc.gnu.org/install/)
