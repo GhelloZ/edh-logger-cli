@@ -9,10 +9,12 @@ Simple Go CLI tool to log MTG Commander games and get stats for both decks and p
 When it'll be complete I'll worry about writing a proper README.md file. 
 
 # Dependencies
-This package has no runtime dependencies aside `glibc`, but it has some dependencies for compiling:
-- gcc
-- go
-- make
+## Compiling dependencies
+- [gcc](https://gcc.gnu.org/install/)
+- [go](https://go.dev/doc/install/source)
+- [make](https://www.gnu.org/software/make/#download)
+## Runtime dependencies
+- [sqlite](https://sqlite.org/src/doc/trunk/README.md)
 You must install these manually, otherwise the package can't be compiled
 
 # Installation

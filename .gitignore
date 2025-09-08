@@ -38,8 +38,6 @@ build
 *.i*86
 *.x86_64
 *.hex
-# Name of the main executable
-edh
 
 # Database file
 *.db
