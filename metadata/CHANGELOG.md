@@ -8,6 +8,14 @@
 - [x] Added banner to README.md
 - [ ] Fix workflows
 ## TODO
+### Libraries stuff
+- [ ] Add `add_deck()` function
+- [ ] Add `delete_deck()` function
+- [ ] Add `update_deck()` function
+- [ ] Add `rename_player()` function
+- [ ] Add `delete_player()` function
+- [ ] Add `list_games()` function
+- [ ] Add `delete_dame()` function
 ### Logging commands
 - [ ] Add `deck add` command
 - [ ] Add `player rename` command
