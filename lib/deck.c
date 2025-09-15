@@ -4,8 +4,7 @@
 #include "deck.h"
 #include "utils.h"
 
-
-int add_deck(char *title, char *commander, char *partner, char *companion, char *link, char *card_list){
+int add_deck(char *title, char *commander, char *partner, char *companion, char *link, FILE *card_list){
 	/**************
 	 * VALIDATION *
 	 **************/
@@ -89,7 +88,9 @@ int add_deck(char *title, char *commander, char *partner, char *companion, char 
 	}
 
 	// Card list
-	const char *pattern = "^[A-Za-z0-9 ._'-]{4,64}$";
+	const char *pattern = "^(?:\d{1,2}x? [a-zA-Z ,'-]+\r?\n?)*$"; // Validates that all the lines
+																  // in the file matches the regex,
+																  // fails if just one doesn't
 	int validate_rc = validate_regex(card_list, pattern);
 	if (validate_rc != REGEX_OK) {
 		switch (validate_rc) {
@@ -102,3 +103,25 @@ int add_deck(char *title, char *commander, char *partner, char *companion, char 
 		}
 	}
 }
+
+// Wrapper that takes a file path as input instead of a file
+int add_deck_list_file_path(
+		char *title, 
+		char *commander, 
+		char *partner, 
+		char *companion, 
+		char *link, 
+		char *card_list_path)
+{
+	FILE *card_list_file = fopen(card_list_path, "r");
+	int rc = add_deck(
+			title,
+			commander,
+			partner,
+			companion,
+			link,
+			card_list_file
+			);
+	return rc;
+}
+
