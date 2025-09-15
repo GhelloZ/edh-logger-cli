@@ -53,7 +53,7 @@ func init(){
 	gameCmd.AddCommand(addGameCmd)
 }
 
-func runAddGame(){
+func runAddGame() int {
 	playerList := strings.Split(playersCsv,",")
 	deckList   := strings.Split(decksCsv,",")
 	var rankList []string
@@ -63,7 +63,7 @@ func runAddGame(){
 
 	if len(playerList) != len(deckList) {
 		fmt.Println("Number of players must match number of decks")
-		return
+		return -1
 	}
 
 	// Convert []string to []*C.char
@@ -83,7 +83,7 @@ func runAddGame(){
 		parsed, err := timepkg.Parse("2006-01-02 15:04", dateStr)
 		if err != nil {
 			fmt.Printf("Invalid date format. Please use 'YYYY-MM-DD HH:MM'\n")
-			return
+			return -1
 		}
 		timestamp = parsed.Unix()
 	} else {
@@ -106,14 +106,14 @@ func runAddGame(){
 	}
 
 	// Calling add_game() from game.h to actually add the game
-	addGameReturn := C.add_game(
+	rc := int(C.add_game(
 		(**C.char)(unsafe.Pointer(&cPlayers[0])),
 		(**C.char)(unsafe.Pointer(&cDecks[0])),
 		cRanksPtr,
 		C.ushort(len(playerList)),
 		C.ushort(time),
 		C.longlong(timestamp),
-	)
+	))
 
 	// Freeing memory
 	for _, s := range cPlayers {
@@ -126,9 +126,9 @@ func runAddGame(){
 		C.free(unsafe.Pointer(s))
 	}
 
-	if addGameReturn != 0 {
+	if rc != 0 {
 		fmt.Printf("Game could not be logged\n")
-		return
+		return rc
 	}
 
 	fmt.Printf("Added game: \n")
@@ -141,4 +141,6 @@ func runAddGame(){
 		fmt.Printf("\tTime:\t\t%d minutes\n", time)
 	}
 	fmt.Printf("\tDate:\t\t%s\n", timepkg.Unix(timestamp, 0).Format("2006-01-02 15:04"))
+
+	return rc
 }

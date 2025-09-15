@@ -1,6 +1,8 @@
 #ifndef DECK_H
 #define DECK_H
 
+#include <stdio.h>
+
 typedef enum {
 	ADDDECK_OK = 0,				// Success
 
@@ -14,11 +16,20 @@ typedef enum {
 								// not supported at the moment (only archidekt
 								// for now)
 	ADDDECK_INVALID_CARD_LIST,
-	ADDDECK_ ,
-	ADDDECK_ ,
+	ADDDECK_INVALID_CARD_LIST_PATH,	// The file for the decklist wasn't found in
+									// the specified path
+	ADDDECK_VALIDATION_ERROR	// Generic error from the validator
 } AddDeckReturn;
 
 int add_deck(
+		char *title, 
+		char *commander, 
+		char *partner, 
+		char *companion, 
+		char *link, 
+		FILE *card_list
+		);
+int add_deck_list_file_path(
 		char *title, 
 		char *commander, 
 		char *partner, 

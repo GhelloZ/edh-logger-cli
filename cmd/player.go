@@ -46,22 +46,24 @@ func init(){
 	playerCmd.AddCommand(addPlayerCmd)
 }
 
-func runAddPlayer(){
+func runAddPlayer() int {
 	name := strings.TrimSpace(playerName)
 
 	if name == "" {
 		fmt.Printf("Player name is empty, please provide one")
-		return
+		return -1
 	}
 
 	cName := C.CString(name)
 	defer C.free(unsafe.Pointer(cName))
 
-	rc := C.add_player(cName)
+	rc := int(C.add_player(cName))
 	if int(rc) != 0 {
 		fmt.Printf("Failed to store player into the database\n")
-		return
+		return rc
 	}
 
 	fmt.Printf("Added %s to database\n", name)
+
+	return rc
 }
