@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <sqlite3.h>
+#include <string.h>
 
 #include "deck.h"
 #include "utils.h"
@@ -9,8 +10,8 @@ int add_deck(char *title, char *commander, char *partner, char *companion, char 
 	 * VALIDATION *
 	 **************/
 	// Title
-	fprintf(stderr, "Title");
-	if (!title) {
+	fprintf(stderr, "\033[90mTitle: %s\n\033[0m", title);
+	if(!strcmp(title, "")) {
 		return ADDDECK_NO_TITLE;
 	}
 
@@ -28,8 +29,8 @@ int add_deck(char *title, char *commander, char *partner, char *companion, char 
 	}
 
 	// Commander
-	fprintf(stderr, "Commander");
-	if (!commander) {
+	fprintf(stderr, "\033[90mCommander: %s\n\033[0m", commander);
+	if(!strcmp(commander, "")) {
 		return ADDDECK_NO_COMMANDER;
 	}
 
@@ -47,8 +48,8 @@ int add_deck(char *title, char *commander, char *partner, char *companion, char 
 	}
 
 	// Partner
-	fprintf(stderr, "Partner");
-	if(partner){
+	fprintf(stderr, "\033[90mPartner: %s\n\033[0m", partner);
+	if(strcmp(partner, "")){
 		pattern = "^[A-Za-z0-9 ._',-]{4,64}$";
 		validate_rc = validate_regex(partner, pattern);
 		if (validate_rc != REGEX_OK) {
@@ -64,8 +65,8 @@ int add_deck(char *title, char *commander, char *partner, char *companion, char 
 	}
 
 	// Companion
-	fprintf(stderr, "Companion");
-	if(companion){
+	fprintf(stderr, "\033[90mCompanion: %s\n\033[0m", companion);
+	if(strcmp(companion, "")){
 		pattern = "^[A-Za-z0-9 ._'-]{4,64}$";
 		validate_rc = validate_regex(companion, pattern);
 		if (validate_rc != REGEX_OK) {
@@ -82,9 +83,9 @@ int add_deck(char *title, char *commander, char *partner, char *companion, char 
 
 	// Deck link
 	// https://archidekt.com/decks/5918632/halana
-	fprintf(stderr, "Deck link");
-	pattern = "^https:\\/\\/archidekt\\.com\\/decks\\/\\d{7}\\/[a-zA-Z_\\d]+$";
-	if(link){
+	fprintf(stderr, "\033[90mDeck link: %s\n\033[0m", link);
+	pattern = "^https:\\/\\/archidekt\\.com\\/decks\\/[0-9]{7}\\/[a-zA-Z_0-9]+$";
+	if(strcmp(link, "")){
 		validate_rc = validate_regex(link, pattern);
 		if (validate_rc != REGEX_OK) {
 			switch (validate_rc) {
@@ -99,7 +100,7 @@ int add_deck(char *title, char *commander, char *partner, char *companion, char 
 	}
 
 	// Card list
-	fprintf(stderr, "Card list");
+	fprintf(stderr, "\033[90mCard list\n\033[0m");
 	pattern = "^(?:\\d{1,2}x? [a-zA-Z ,'-]+\\r?\\n?)*$"; // Validates that all the lines
 														 // in the file matches the regex,
 														 // fails if just one doesn't
@@ -116,6 +117,7 @@ int add_deck(char *title, char *commander, char *partner, char *companion, char 
 	}
 	}
 	*/
+	fprintf(stderr, "\033[32mValidation completed!\033[0m\n");
 
 	return ADDDECK_OK;
 }
