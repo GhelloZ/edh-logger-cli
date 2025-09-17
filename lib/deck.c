@@ -10,7 +10,7 @@ int add_deck(char *title, char *commander, char *partner, char *companion, char 
 	 * VALIDATION *
 	 **************/
 	// Title
-	fprintf(stderr, "\033[90mTitle: %s\n\033[0m", title);
+	//fprintf(stderr, "\033[90mTitle: %s\n\033[0m", title);
 	if(!strcmp(title, "")) {
 		return ADDDECK_NO_TITLE;
 	}
@@ -29,7 +29,7 @@ int add_deck(char *title, char *commander, char *partner, char *companion, char 
 	}
 
 	// Commander
-	fprintf(stderr, "\033[90mCommander: %s\n\033[0m", commander);
+	//fprintf(stderr, "\033[90mCommander: %s\n\033[0m", commander);
 	if(!strcmp(commander, "")) {
 		return ADDDECK_NO_COMMANDER;
 	}
@@ -48,7 +48,7 @@ int add_deck(char *title, char *commander, char *partner, char *companion, char 
 	}
 
 	// Partner
-	fprintf(stderr, "\033[90mPartner: %s\n\033[0m", partner);
+	//fprintf(stderr, "\033[90mPartner: %s\n\033[0m", partner);
 	if(strcmp(partner, "")){
 		pattern = "^[A-Za-z0-9 ._',-]{4,64}$";
 		validate_rc = validate_regex(partner, pattern);
@@ -65,7 +65,7 @@ int add_deck(char *title, char *commander, char *partner, char *companion, char 
 	}
 
 	// Companion
-	fprintf(stderr, "\033[90mCompanion: %s\n\033[0m", companion);
+	//fprintf(stderr, "\033[90mCompanion: %s\n\033[0m", companion);
 	if(strcmp(companion, "")){
 		pattern = "^[A-Za-z0-9 ._'-]{4,64}$";
 		validate_rc = validate_regex(companion, pattern);
@@ -83,7 +83,7 @@ int add_deck(char *title, char *commander, char *partner, char *companion, char 
 
 	// Deck link
 	// https://archidekt.com/decks/5918632/halana
-	fprintf(stderr, "\033[90mDeck link: %s\n\033[0m", link);
+	//fprintf(stderr, "\033[90mDeck link: %s\n\033[0m", link);
 	pattern = "^https:\\/\\/archidekt\\.com\\/decks\\/[0-9]{7}\\/[a-zA-Z_0-9]+$";
 	if(strcmp(link, "")){
 		validate_rc = validate_regex(link, pattern);
@@ -100,7 +100,7 @@ int add_deck(char *title, char *commander, char *partner, char *companion, char 
 	}
 
 	// Card list
-	fprintf(stderr, "\033[90mCard list\n\033[0m");
+	//fprintf(stderr, "\033[90mCard list\n\033[0m");
 	pattern = "^[0-9]{1,2}x? [a-zA-Z ,'-]+$";
 
 	char buffer[MAX_CARD_NAME_LEN];
