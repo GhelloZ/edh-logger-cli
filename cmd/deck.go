@@ -11,7 +11,7 @@ import "C"
 import (
 	"fmt"
 	//"strings"
-	//"unsafe"
+	"unsafe"
 
 	"github.com/spf13/cobra"
 )
@@ -49,8 +49,8 @@ func init(){
 	addDeckCmd.Flags().StringVarP(&link, "link","l","","Optional. Link for the deck list")
 	addDeckCmd.Flags().StringVarP(&cardListFilePath, "card-list", "", "", "Optional. Full deck list. If an archidekt link is provided the deck list will be pulled from there by default.")
 
-//	addDeckCmd.MarkFlagRequired("title")
-//	addDeckCmd.MarkFlagRequired("commander")
+	//	addDeckCmd.MarkFlagRequired("title")
+	//	addDeckCmd.MarkFlagRequired("commander")
 
 	deckCmd.AddCommand(addDeckCmd)
 }
@@ -58,13 +58,26 @@ func init(){
 func runAddDeck() int {
 	fmt.Println("Not fully implemented")
 
+	ctitle := C.CString(title)
+	defer C.free(unsafe.Pointer(ctitle))
+	ccommander := C.CString(commander)
+	defer C.free(unsafe.Pointer(ccommander))
+	cpartner := C.CString(partner)
+	defer C.free(unsafe.Pointer(cpartner))
+	ccompanion := C.CString(companion)
+	defer C.free(unsafe.Pointer(ccompanion))
+	clink := C.CString(link)
+	defer C.free(unsafe.Pointer(clink))
+	ccardListFilePath := C.CString(cardListFilePath)
+	defer C.free(unsafe.Pointer(ccardListFilePath))
+
 	rc := int(C.add_deck_list_file_path(
-		C.CString(title),
-		C.CString(commander),
-		C.CString(partner),
-		C.CString(companion),
-		C.CString(link),
-		C.CString(cardListFilePath),
+		ctitle,
+		ccommander,
+		cpartner,
+		ccompanion,
+		clink,
+		ccardListFilePath,
 	))
 
 	fmt.Printf("%d: ", rc)
