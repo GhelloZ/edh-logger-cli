@@ -140,8 +140,8 @@ int add_deck(const char *title,
 			buffer[strcspn(buffer, "\n")] = '\0';			// Removes the newline char so that the
 															// regex doesn't fail
 
-															// Skips the line if it's empty
-															// When exporting from archidekt there's a blank line at the end
+			// Skips the line if it's empty
+			// When exporting from archidekt there's a blank line at the end
 			char *line = buffer;
 			while (*line == ' ' || *line == '\t') line++;
 			if (*line == '\0') continue;
