@@ -103,6 +103,8 @@ func runAddDeck() int {
 	case 9:
 		fmt.Println("Invalid file path for deck list")
 	case 10:
+		fmt.Println("Deck list too long")
+	case 11:
 		fmt.Println("Generic validation error")
 	}
 

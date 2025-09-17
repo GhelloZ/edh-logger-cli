@@ -106,7 +106,12 @@ int add_deck(char *title, char *commander, char *partner, char *companion, char 
 	char buffer[MAX_CARD_NAME_LEN];
 
 	if(card_list){
+		int line_count = 0;
 		while(fgets(buffer, MAX_CARD_NAME_LEN, card_list)){
+			// If the deck list is too long the program will interrupt
+			line_count++;
+			if( line_count>=MAX_CARD_ENTRIES) return ADDDECK_LIST_TOO_LONG;
+
 			buffer[strcspn(buffer, "\n")] = '\0';			// Removes the newline char so that the
 															// regex doesn't fail
 
