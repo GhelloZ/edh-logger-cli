@@ -107,7 +107,8 @@ int add_deck(char *title, char *commander, char *partner, char *companion, char 
 
 	if(card_list){
 		while(fgets(buffer, MAX_CARD_NAME_LEN, card_list)){
-			buffer[strcspn(buffer, "\n")] = '\0';
+			buffer[strcspn(buffer, "\n")] = '\0';			// Removes the newline char so that the
+															// regex doesn't fail
 
 			// Skips the line if it's empty
 			// When exporting from archidekt there's a blank line at the end
@@ -115,13 +116,13 @@ int add_deck(char *title, char *commander, char *partner, char *companion, char 
 			while (*line == ' ' || *line == '\t') line++;
 			if (*line == '\0') continue;
 
-			printf("\033[36m%s\033[0m\n", buffer);
+			//printf("\033[36m%s\033[0m\n", buffer);
 			validate_rc = validate_regex(buffer, pattern);
 			if (validate_rc != REGEX_OK){
 				switch (validate_rc){
 					case REGEX_NO_MATCH:
-						return ADDDECK_INVALID_CARD_LIST; // One or more lines don't match
-														  // the regex rule
+						return ADDDECK_INVALID_CARD_LIST;	// One or more lines don't match
+															// the regex rule
 					case REGEX_COMPILE_ERR:
 					default:
 						// Something wrong with the validator or pattern — treat as validation failure.
@@ -130,7 +131,7 @@ int add_deck(char *title, char *commander, char *partner, char *companion, char 
 			}
 		}
 	}
-	fprintf(stderr, "\033[32mValidation completed!\033[0m\n");
+	//fprintf(stderr, "\033[32mValidation completed!\033[0m\n");
 
 	return ADDDECK_OK;
 }
