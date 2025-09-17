@@ -101,22 +101,35 @@ int add_deck(char *title, char *commander, char *partner, char *companion, char 
 
 	// Card list
 	fprintf(stderr, "\033[90mCard list\n\033[0m");
-	pattern = "^(?:\\d{1,2}x? [a-zA-Z ,'-]+\\r?\\n?)*$"; // Validates that all the lines
-														 // in the file matches the regex,
-														 // fails if just one doesn't
-	/*
-	   validate_rc = validate_regex(card_list, pattern);
-	   if (validate_rc != REGEX_OK) {
-	   switch (validate_rc) {
-	   case REGEX_NO_MATCH:
-	   return ADDDECK_INVALID_CARD_LIST;    // name doesn't match allowed pattern
-	   case REGEX_COMPILE_ERR:
-	   default:
-	// Something wrong with the validator or pattern — treat as validation failure.
-	return ADDDECK_VALIDATION_ERROR;
+	pattern = "^[0-9]{1,2}x? [a-zA-Z ,'-]+$";
+
+	char buffer[MAX_CARD_NAME_LEN];
+
+	if(card_list){
+		while(fgets(buffer, MAX_CARD_NAME_LEN, card_list)){
+			buffer[strcspn(buffer, "\n")] = '\0';
+
+			// Skips the line if it's empty
+			// When exporting from archidekt there's a blank line at the end
+			char *line = buffer;
+			while (*line == ' ' || *line == '\t') line++;
+			if (*line == '\0') continue;
+
+			printf("\033[36m%s\033[0m\n", buffer);
+			validate_rc = validate_regex(buffer, pattern);
+			if (validate_rc != REGEX_OK){
+				switch (validate_rc){
+					case REGEX_NO_MATCH:
+						return ADDDECK_INVALID_CARD_LIST; // One or more lines don't match
+														  // the regex rule
+					case REGEX_COMPILE_ERR:
+					default:
+						// Something wrong with the validator or pattern — treat as validation failure.
+						return ADDDECK_VALIDATION_ERROR;
+				}
+			}
+		}
 	}
-	}
-	*/
 	fprintf(stderr, "\033[32mValidation completed!\033[0m\n");
 
 	return ADDDECK_OK;
@@ -141,6 +154,11 @@ int add_deck_list_file_path(
 			link,
 			card_list_file
 			);
+
+	if(card_list_file){
+		fclose(card_list_file);
+	}
+
 	return rc;
 }
 
