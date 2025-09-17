@@ -5,7 +5,13 @@
 #include "deck.h"
 #include "utils.h"
 
-int add_deck(char *title, char *commander, char *partner, char *companion, char *link, FILE *card_list){
+int add_deck(const char *title,
+		const char *commander,
+		const char *owner,
+		const char *partner,
+		const char *companion,
+		const char *link,
+		FILE *card_list){
 	/**************
 	 * VALIDATION *
 	 **************/
@@ -40,6 +46,25 @@ int add_deck(char *title, char *commander, char *partner, char *companion, char 
 		switch (validate_rc) {
 			case REGEX_NO_MATCH:
 				return ADDDECK_INVALID_COMMANDER;
+			case REGEX_COMPILE_ERR:
+			default:
+				// Something wrong with the validator or pattern — treat as validation failure.
+				return ADDDECK_VALIDATION_ERROR;
+		}
+	}
+
+	// Owner
+	//fprintf(stderr, "\033[90mOwner: %s\n\033[0m", owner);
+	if(!strcmp(owner, "")) {
+		return ADDDECK_NO_OWNER;
+	}
+	
+	pattern = "^[A-Za-z0-9 ._'-]{4,64}$";
+	validate_rc = validate_regex(owner, pattern);
+	if (validate_rc != REGEX_OK) {
+		switch (validate_rc) {
+			case REGEX_NO_MATCH:
+				return ADDDECK_INVALID_OWNER;
 			case REGEX_COMPILE_ERR:
 			default:
 				// Something wrong with the validator or pattern — treat as validation failure.
@@ -115,8 +140,8 @@ int add_deck(char *title, char *commander, char *partner, char *companion, char 
 			buffer[strcspn(buffer, "\n")] = '\0';			// Removes the newline char so that the
 															// regex doesn't fail
 
-			// Skips the line if it's empty
-			// When exporting from archidekt there's a blank line at the end
+															// Skips the line if it's empty
+															// When exporting from archidekt there's a blank line at the end
 			char *line = buffer;
 			while (*line == ' ' || *line == '\t') line++;
 			if (*line == '\0') continue;
@@ -143,18 +168,21 @@ int add_deck(char *title, char *commander, char *partner, char *companion, char 
 
 // Wrapper that takes a file path as input instead of a file
 int add_deck_list_file_path(
-		char *title, 
-		char *commander, 
-		char *partner, 
-		char *companion, 
-		char *link, 
-		char *card_list_path)
+		const char *title, 
+		const char *commander, 
+		const char *owner,
+		const char *partner, 
+		const char *companion, 
+		const char *link, 
+		const char *card_list_path)
 {
 	FILE *card_list_file = fopen(card_list_path, "r");
+	if(!card_list_file) return ADDDECK_INVALID_CARD_LIST_PATH;
 
 	int rc = add_deck(
 			title,
 			commander,
+			owner,
 			partner,
 			companion,
 			link,

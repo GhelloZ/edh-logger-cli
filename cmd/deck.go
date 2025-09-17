@@ -17,11 +17,12 @@ import (
 )
 
 var (
-	title		string
-	commander	string
-	partner		string
-	companion	string
-	link		string
+	title				string
+	commander			string
+	owner				string
+	partner				string
+	companion			string
+	link				string
 	cardListFilePath	string
 )
 
@@ -44,13 +45,15 @@ func init(){
 
 	addDeckCmd.Flags().StringVarP(&title, "title","t","","Title for the deck")
 	addDeckCmd.Flags().StringVarP(&commander, "commander","c","","Commander")
+	addDeckCmd.Flags().StringVarP(&owner, "owner","o","","Owner of the deck")
 	addDeckCmd.Flags().StringVarP(&partner, "partner","p","","Optional. Partner")
 	addDeckCmd.Flags().StringVarP(&companion, "companion","","","Optional. Companion")
 	addDeckCmd.Flags().StringVarP(&link, "link","l","","Optional. Link for the deck list")
 	addDeckCmd.Flags().StringVarP(&cardListFilePath, "card-list", "", "", "Optional. Full deck list. If an archidekt link is provided the deck list will be pulled from there by default.")
 
-	//	addDeckCmd.MarkFlagRequired("title")
-	//	addDeckCmd.MarkFlagRequired("commander")
+	addDeckCmd.MarkFlagRequired("title")
+	addDeckCmd.MarkFlagRequired("commander")
+	addDeckCmd.MarkFlagRequired("owner")
 
 	deckCmd.AddCommand(addDeckCmd)
 }
@@ -58,53 +61,60 @@ func init(){
 func runAddDeck() int {
 	fmt.Println("Not fully implemented")
 
-	ctitle := C.CString(title)
-	defer C.free(unsafe.Pointer(ctitle))
-	ccommander := C.CString(commander)
-	defer C.free(unsafe.Pointer(ccommander))
-	cpartner := C.CString(partner)
-	defer C.free(unsafe.Pointer(cpartner))
-	ccompanion := C.CString(companion)
-	defer C.free(unsafe.Pointer(ccompanion))
-	clink := C.CString(link)
-	defer C.free(unsafe.Pointer(clink))
-	ccardListFilePath := C.CString(cardListFilePath)
-	defer C.free(unsafe.Pointer(ccardListFilePath))
+	cTitle := C.CString(title)
+	defer C.free(unsafe.Pointer(cTitle))
+	cCommander := C.CString(commander)
+	defer C.free(unsafe.Pointer(cCommander))
+	cOwner := C.CString(owner)
+	defer C.free(unsafe.Pointer(cOwner))
+	cPartner := C.CString(partner)
+	defer C.free(unsafe.Pointer(cPartner))
+	cCompanion := C.CString(companion)
+	defer C.free(unsafe.Pointer(cCompanion))
+	cLink := C.CString(link)
+	defer C.free(unsafe.Pointer(cLink))
+	cCardListFilePath := C.CString(cardListFilePath)
+	defer C.free(unsafe.Pointer(cCardListFilePath))
 
 	rc := int(C.add_deck_list_file_path(
-		ctitle,
-		ccommander,
-		cpartner,
-		ccompanion,
-		clink,
-		ccardListFilePath,
+		cTitle,
+		cCommander,
+		cOwner,
+		cPartner,
+		cCompanion,
+		cLink,
+		cCardListFilePath,
 	))
 
 	fmt.Printf("%d: ", rc)
 	switch rc {
-	case 0:
+	case C.ADDDECK_OK:
 		fmt.Println("Ok.")
-	case 1:
+	case C.ADDDECK_NO_TITLE:
 		fmt.Println("No deck title provided")
-	case 2:
+	case C.ADDDECK_INVALID_TITLE:
 		fmt.Println("Title failed regex validation")
-	case 3:
+	case C.ADDDECK_NO_COMMANDER:
 		fmt.Println("No commander provided")
-	case 4:
+	case C.ADDDECK_INVALID_COMMANDER:
 		fmt.Println("Commander failed regex validation")
-	case 5:
+	case C.ADDDECK_NO_OWNER:
+		fmt.Println("No owner provided")
+	case C.ADDDECK_INVALID_OWNER:
+		fmt.Println("Owner failed regex validation")
+	case C.ADDDECK_INVALID_PARTNER:
 		fmt.Println("Partner failed regex validation")
-	case 6:
+	case C.ADDDECK_INVALID_COMPANION:
 		fmt.Println("Companion failed regex validation")
-	case 7:
+	case C.ADDDECK_INVALID_LINK:
 		fmt.Println("Link was incorrect or not from archidekt")
-	case 8:
+	case C.ADDDECK_INVALID_CARD_LIST:
 		fmt.Println("Card list failed regex validation")
-	case 9:
+	case C.ADDDECK_INVALID_CARD_LIST_PATH:
 		fmt.Println("Invalid file path for deck list")
-	case 10:
+	case C.ADDDECK_LIST_TOO_LONG:
 		fmt.Println("Deck list too long")
-	case 11:
+	case C.ADDDECK_VALIDATION_ERROR:
 		fmt.Println("Generic validation error")
 	}
 

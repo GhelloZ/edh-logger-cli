@@ -10,6 +10,8 @@ typedef enum {
 	ADDDECK_INVALID_TITLE,		// Title didn't match regex validation
 	ADDDECK_NO_COMMANDER,		// Missing commander
 	ADDDECK_INVALID_COMMANDER,	
+	ADDDECK_NO_OWNER,
+	ADDDECK_INVALID_OWNER,
 	ADDDECK_INVALID_PARTNER,
 	ADDDECK_INVALID_COMPANION,
 	ADDDECK_INVALID_LINK,		// Link spelled incorrectly or website
@@ -30,20 +32,22 @@ typedef enum {
 								// just to prevent actually huge deck lists that may
 								// disrupt the program
 int add_deck(
-		char *title, 
-		char *commander, 
-		char *partner, 
-		char *companion, 
-		char *link, 
+		const char *title, 
+		const char *commander, 
+		const char *owner,
+		const char *partner, 
+		const char *companion, 
+		const char *link, 
 		FILE *card_list
 		);
 int add_deck_list_file_path(
-		char *title, 
-		char *commander, 
-		char *partner, 
-		char *companion, 
-		char *link, 
-		char *card_list
+		const char *title, 
+		const char *commander,
+		const char *owner,
+		const char *partner, 
+		const char *companion, 
+		const char *link, 
+		const char *card_list
 		);
 int delete_deck();
 int update_deck();
