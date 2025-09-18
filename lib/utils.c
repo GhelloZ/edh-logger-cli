@@ -34,25 +34,33 @@ char* get_db_path(){
 	return full_path; // caller must free()
 }
 
-int init_db(){
+sqlite3 *open_db(){
 	sqlite3 *db;
-	char *err_msg = 0;
-	int rc;
 
-	// If no custom path provided, use default
-	char* default_path = NULL;
-	default_path = get_db_path();
-	if (!default_path) return -1;
-	const char* path = default_path;
+	char* db_path = NULL;
+	db_path = get_db_path();
+	if (!db_path) return NULL;
 
 	// Open (or create) the database file
-	rc = sqlite3_open(path, &db);
+	int rc = sqlite3_open(db_path, &db);
+	free(db_path);
+
 	if (rc != SQLITE_OK) {
 		fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
 		sqlite3_close(db);
-		free(default_path);
-		return rc;
+		free(db_path);
+		return NULL;
 	}
+
+	return db;
+}
+
+int init_db(){
+	sqlite3 *db = open_db();
+	if(db == NULL) return DB_NOT_FOUND;
+
+	char *err_msg = 0;
+	int rc;
 
 	// SQL schema
 	const char* sql_tables =
