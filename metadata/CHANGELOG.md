@@ -1,13 +1,8 @@
 ## What's new
-- [x] Updated README.md with installation and build instructions
-- [x] Created CONTRIBUTING.md
-- [x] Added `deck add` command
+Nothing new for now
 ## Fixes
-- [x] Moved metadata/version to metadata/VERSION
-- [x] Moved metadata/changelog.md to metadata/CHANGELOG.md
+- [x] Owned decks count now increments correctly
 ## GitHub stuff
-- [x] Added banner to README.md
-- [x] Temporarily disabled AUR workflow
 - [ ] Fix workflows
 ## TODO
 ### Libraries stuff
