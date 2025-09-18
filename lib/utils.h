@@ -1,5 +1,6 @@
 #ifndef UTILS_H
 #define UTILS_H
+#include <sqlite3.h>
 
 typedef enum {
 	DB_EXISTS = 0,
