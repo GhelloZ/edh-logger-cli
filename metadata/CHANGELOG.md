@@ -7,6 +7,7 @@
 - [x] Moved metadata/changelog.md to metadata/CHANGELOG.md
 ## GitHub stuff
 - [x] Added banner to README.md
+- [x] Temporarily disabled AUR workflow
 - [ ] Fix workflows
 ## TODO
 ### Libraries stuff
