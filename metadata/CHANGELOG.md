@@ -1,6 +1,7 @@
 ## What's new
 - [x] Updated README.md with installation and build instructions
 - [x] Created CONTRIBUTING.md
+- [x] Added `deck add` command
 ## Fixes
 - [x] Moved metadata/version to metadata/VERSION
 - [x] Moved metadata/changelog.md to metadata/CHANGELOG.md
@@ -9,7 +10,6 @@
 - [ ] Fix workflows
 ## TODO
 ### Libraries stuff
-- [ ] Add `add_deck()` function
 - [ ] Add `delete_deck()` function
 - [ ] Add `update_deck()` function
 - [ ] Add `rename_player()` function
@@ -17,7 +17,6 @@
 - [ ] Add `list_games()` function
 - [ ] Add `delete_dame()` function
 ### Logging commands
-- [ ] Add `deck add` command
 - [ ] Add `player rename` command
 - [ ] Add `player delete` command
 - [ ] Add `deck update` command

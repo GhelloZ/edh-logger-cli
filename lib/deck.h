@@ -21,7 +21,8 @@ typedef enum {
 	ADDDECK_INVALID_CARD_LIST_PATH,	// The file for the decklist wasn't found in
 									// the specified path
 	ADDDECK_LIST_TOO_LONG,
-	ADDDECK_VALIDATION_ERROR	// Generic error from the validator
+	ADDDECK_VALIDATION_ERROR,	// Generic error from the validator
+	ADDDECK_FAILED_CARD_LIST_ALLOCATION
 } AddDeckReturn;
 
 #define MAX_CARD_NAME_LEN 146	// Our Market Research Shows That Players Like Really Long Card Names So We Made this Card to Have the Absolute Longest Card Name Ever Elemental
