@@ -48,7 +48,6 @@ sqlite3 *open_db(){
 	if (rc != SQLITE_OK) {
 		fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
 		sqlite3_close(db);
-		free(db_path);
 		return NULL;
 	}
 
@@ -134,17 +133,15 @@ int init_db(){
 
 	// Run sql prompts
 	rc = sqlite3_exec(db, sql_tables, 0, 0, &err_msg);
+	sqlite3_close(db);
+
 	if(rc != SQLITE_OK){
 		fprintf(stderr, "SQL error: %s", err_msg ? err_msg : "(no message)");
 		sqlite3_free(err_msg);
-		sqlite3_close(db);
-		free(default_path);
 		return rc;
 	}
 
 	printf("Database initiated\n");
-	sqlite3_close(db);
-	free(default_path);
 	return SQLITE_OK;
 }
 
