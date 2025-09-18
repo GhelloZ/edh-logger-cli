@@ -13,6 +13,7 @@ int add_deck(const char *title,
 		const char *companion,
 		const char *link,
 		FILE *card_list){
+	fprintf(stderr, "\033[33mNot fully implemented\033[0m\n");
 	/**************
 	 * VALIDATION *
 	 **************/
@@ -237,8 +238,15 @@ int add_deck(const char *title,
 	// Increment owner deck count
 	const char *sql_update_count = "UPDATE Players SET decks_owned_cnt = decks_owned_cnt+1 WHERE player_id = ?;";
 	rc = sqlite3_prepare_v2(db, sql_update_count, -1, &stmt, NULL);
+	if (rc != SQLITE_OK) {
+		fprintf(stderr, "Failed to prepare update player query: %s\n", sqlite3_errmsg(db));
+		return rc;
+	}
+
+	sqlite3_bind_int(stmt, 1, owner_id);
+	rc = sqlite3_step(stmt);
 	sqlite3_finalize(stmt);
-	if (rc != SQLITE_OK){
+	if (rc != SQLITE_DONE){
 		fprintf(stderr, "Failed to update %s decks_owned_cnt: %s\n", owner, sqlite3_errmsg(db));
 		return rc;
 	}

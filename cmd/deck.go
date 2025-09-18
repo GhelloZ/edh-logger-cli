@@ -59,8 +59,6 @@ func init(){
 }
 
 func runAddDeck() int {
-	fmt.Println("Not fully implemented")
-
 	cTitle := C.CString(title)
 	defer C.free(unsafe.Pointer(cTitle))
 	cCommander := C.CString(commander)
