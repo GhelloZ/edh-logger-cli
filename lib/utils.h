@@ -17,6 +17,7 @@ typedef enum {
 } ValidateResult;
 
 char* get_db_path();
+sqlite3 *open_db();
 int init_db();
 int check_if_db_exists();
 int validate_regex(const char* string, const char* pattern);
