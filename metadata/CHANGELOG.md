@@ -1,7 +1,7 @@
 ## What's new
 Nothing new for now
 ## Fixes
-- [x] Owned decks count now increments correctly
+- [ ] Makefile fix for AUR release
 ## GitHub stuff
 - [ ] Fix workflows
 ## TODO
