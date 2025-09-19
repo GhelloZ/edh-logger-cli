@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <regex.h>
+#include <curl/curl.h>
 
 #include "utils.h"
 
@@ -176,4 +177,65 @@ int validate_regex(const char* string, const char* pattern){
 	if(ret == 0) 			return REGEX_OK;
 	if(ret == REG_NOMATCH)	return REGEX_NO_MATCH;
 	return REGEX_UNDEFINED_ERR;
+}
+
+struct curl_response {
+	char *output;
+	size_t size;
+};
+
+// Callback function for libcurl to write the response into output
+static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp) {
+    size_t real_size = size * nmemb;
+    struct curl_response *mem = (struct curl_response *)userp;
+
+    char *ptr = realloc(mem->output, mem->size + real_size + 1);
+    if (ptr == NULL) {
+        // out of output
+        printf("Not enough output (realloc returned NULL)\n");
+        return 0;
+    }
+
+    mem->output = ptr;
+    memcpy(&(mem->output[mem->size]), contents, real_size);
+    mem->size += real_size;
+    mem->output[mem->size] = 0; // null-terminate
+
+    return real_size;
+}
+
+char *fetch_api(const char *uri){
+	CURLcode res;
+	CURL *handle;
+
+	struct curl_response response = {0};
+	response.output = malloc(1);
+	response.size = 0;
+
+	curl_global_init(CURL_GLOBAL_DEFAULT);
+	curl_easy_setopt(handle, CURLOPT_URL, "https://archidekt.com/");
+
+	handle = curl_easy_init();
+	if(!handle){
+		free(response.output);
+		fprintf(stderr, "For some reason no curl handle\n");
+		return NULL;
+	}
+
+	curl_easy_setopt(handle, CURLOPT_URL, uri); 
+	curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback); 
+	curl_easy_setopt(handle, CURLOPT_WRITEDATA, (void *)&response); 
+	curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION, 1L); 
+
+	res = curl_easy_perform(handle);
+	if(res!=CURLE_OK){
+		free(response.output);
+		fprintf(stderr, "Failed to execute get request from %s", uri);
+		return NULL;
+	}
+
+	curl_easy_cleanup(handle);
+	curl_global_cleanup();
+
+	return response.output; // Must free in the caller
 }
