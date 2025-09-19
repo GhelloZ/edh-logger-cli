@@ -11,12 +11,10 @@ BIN := $(BUILD_DIR)/edh
 
 .PHONY: all clean
 
-all: prepare-version $(BIN) cleanup-version
+all: prepare-version $(BIN) #cleanup-version
 
 prepare-version:
-	@if [ -f metadata/VERSION ]; then \
-	  cp metadata/VERSION cmd/VERSION; \
-	fi
+	cp metadata/VERSION cmd/VERSION
 
 # Archive of C objects (placed in build/)
 $(LIB_ARCHIVE): $(BUILD_OBJ)
