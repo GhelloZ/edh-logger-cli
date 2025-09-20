@@ -19,7 +19,7 @@ int add_deck(const char *title,
 	 **************/
 	// Title
 	//fprintf(stderr, "\033[90mTitle: %s\n\033[0m", title);
-	if(!strcmp(title, "")) {
+	if(!strcmp(title, "") || !strcmp(link, "")) {
 		return ADDDECK_NO_TITLE;
 	}
 
@@ -38,11 +38,11 @@ int add_deck(const char *title,
 
 	// Commander
 	//fprintf(stderr, "\033[90mCommander: %s\n\033[0m", commander);
-	if(!strcmp(commander, "")) {
+	if(!strcmp(commander, "") || !strcmp(link, "")) {
 		return ADDDECK_NO_COMMANDER;
 	}
 
-	pattern = "^[A-Za-z0-9 ._',-]{4,64}$";
+	pattern = "^[A-Za-z0-9 ._',-]{4,MAX_CARD_NAME_LEN}$";
 	validate_rc = validate_regex(commander, pattern);
 	if (validate_rc != REGEX_OK) {
 		switch (validate_rc) {
@@ -77,7 +77,7 @@ int add_deck(const char *title,
 	// Partner
 	//fprintf(stderr, "\033[90mPartner: %s\n\033[0m", partner);
 	if(strcmp(partner, "")){
-		pattern = "^[A-Za-z0-9 ._',-]{4,64}$";
+		pattern = "^[A-Za-z0-9 ._',-]{4,MAX_CARD_NAME_LEN}$";
 		validate_rc = validate_regex(partner, pattern);
 		if (validate_rc != REGEX_OK) {
 			switch (validate_rc) {
@@ -94,7 +94,7 @@ int add_deck(const char *title,
 	// Companion
 	//fprintf(stderr, "\033[90mCompanion: %s\n\033[0m", companion);
 	if(strcmp(companion, "")){
-		pattern = "^[A-Za-z0-9 ._'-]{4,64}$";
+		pattern = "^[A-Za-z0-9 ._'-]{4,MAX_CARD_NAME_LEN}$";
 		validate_rc = validate_regex(companion, pattern);
 		if (validate_rc != REGEX_OK) {
 			switch (validate_rc) {
