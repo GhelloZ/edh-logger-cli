@@ -17,11 +17,16 @@ typedef enum {
 	REGEX_UNDEFINED_ERR
 } ValidateResult;
 
+typedef struct {
+	char *output;
+	size_t size;
+} ApiResponse;
+
 char* get_db_path();
 sqlite3 *open_db();
 int init_db();
 int check_if_db_exists();
 int validate_regex(const char* string, const char* pattern);
-char *fetch_api(const char *uri);
+ApiResponse fetch_api(const char *uri);
 
 #endif

@@ -204,38 +204,40 @@ static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, voi
     return real_size;
 }
 
-char *fetch_api(const char *uri){
+ApiResponse fetch_api(const char *uri){
 	CURLcode res;
 	CURL *handle;
+	ApiResponse response = {0};
 
-	struct curl_response response = {0};
-	response.output = malloc(1);
-	response.size = 0;
+	struct curl_response chunk = {0};
+	chunk.output = malloc(1);
+	chunk.size = 0;
 
 	curl_global_init(CURL_GLOBAL_DEFAULT);
-	curl_easy_setopt(handle, CURLOPT_URL, "https://archidekt.com/");
-
 	handle = curl_easy_init();
+	curl_easy_setopt(handle, CURLOPT_URL, "https://naas.isalman.dev/no"); // Just a default
+
 	if(!handle){
-		free(response.output);
+		free(chunk.output);
 		fprintf(stderr, "For some reason no curl handle\n");
-		return NULL;
+		return response;
 	}
 
 	curl_easy_setopt(handle, CURLOPT_URL, uri); 
 	curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback); 
-	curl_easy_setopt(handle, CURLOPT_WRITEDATA, (void *)&response); 
+	curl_easy_setopt(handle, CURLOPT_WRITEDATA, (void *)&chunk); 
 	curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION, 1L); 
 
 	res = curl_easy_perform(handle);
 	if(res!=CURLE_OK){
-		free(response.output);
-		fprintf(stderr, "Failed to execute get request from %s", uri);
-		return NULL;
+		fprintf(stderr, "Failed to execute GET request from %s: %s", uri, curl_easy_strerror(res));
+		free(chunk.output);
+	} else {
+		response.output = chunk.output;
+		response.size = chunk.size;
 	}
 
 	curl_easy_cleanup(handle);
 	curl_global_cleanup();
-
-	return response.output; // Must free in the caller
+	return response; // Must free in the caller
 }
