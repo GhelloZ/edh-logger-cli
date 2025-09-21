@@ -1,6 +1,7 @@
 ## What's new
 Nothing new for now
 ## Fixes
+- [x] Cleaned up some dependencies
 - [ ] Makefile fix for AUR release
 ## GitHub stuff
 - [ ] Fix workflows
