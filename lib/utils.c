@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <regex.h>
 #include <curl/curl.h>
+#include <stddef.h>
 
 #include "utils.h"
 
