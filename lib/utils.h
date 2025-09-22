@@ -23,11 +23,20 @@ typedef struct {
 	size_t size;
 } ApiResponse;
 
+typedef struct {
+	char *title;
+	char *commander;
+	char *cardlist;
+	char *partner;
+	char *companion;
+} DeckInfo;
+
 char* get_db_path();
 sqlite3 *open_db();
 int init_db();
 int check_if_db_exists();
 int validate_regex(const char* string, const char* pattern);
 ApiResponse fetch_api(const char *uri);
+void parse_deck_info(char *json_blob);
 
 #endif

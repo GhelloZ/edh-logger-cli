@@ -135,8 +135,8 @@ int add_deck(const char *title,
 		}
 
 		deck_info = fetch_api(link);
-		printf("%s\n", deck_info.output);
 
+		parse_deck_info(deck_info.output);
 		free(deck_info.output);
 	}
 

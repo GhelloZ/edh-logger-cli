@@ -8,6 +8,7 @@
 #include <curl/curl.h>
 #include <stddef.h>
 
+#include "cJSON.h"
 #include "utils.h"
 
 #define DB_REL_PATH "/.config/edh/database.db"
@@ -241,4 +242,10 @@ ApiResponse fetch_api(const char *uri){
 	curl_easy_cleanup(handle);
 	curl_global_cleanup();
 	return response; // Must free in the caller
+}
+
+void parse_deck_info(char *json_blob){
+	cJSON *json = cJSON_Parse(json_blob);
+
+//	printf("func test: %s\n", cJSON_Print(json));
 }
