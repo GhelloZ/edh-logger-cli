@@ -65,4 +65,4 @@ old_stuff
 
 # Huge test file too big for github
 # The script to generate it is still there
-test/huge_test_file.txt
+tests/huge_test_file.txt
