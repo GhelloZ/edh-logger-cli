@@ -19,11 +19,12 @@ int add_deck(const char *title,
 	 **************/
 	// Title
 	//fprintf(stderr, "\033[90mTitle: %s\n\033[0m", title);
-	if(!strcmp(title, "") || !strcmp(link, "")) {
+	if(!strcmp(title, "") && !strcmp(link, "")) {
 		return ADDDECK_NO_TITLE;
 	}
 
-	const char *pattern = "^[A-Za-z0-9 ._'-]{4,64}$";
+	char pattern[256];
+	strcpy(pattern, "[A-Za-z0-9 ._'-]{4,64}$");
 	int validate_rc = validate_regex(title, pattern);
 	if (validate_rc != REGEX_OK) {
 		switch (validate_rc) {
@@ -32,17 +33,18 @@ int add_deck(const char *title,
 			case REGEX_COMPILE_ERR:
 			default:
 				// Something wrong with the validator or pattern — treat as validation failure.
+				fprintf(stderr,"\033[91mTitle: \033[0m");
 				return ADDDECK_VALIDATION_ERROR;
 		}
 	}
 
 	// Commander
 	//fprintf(stderr, "\033[90mCommander: %s\n\033[0m", commander);
-	if(!strcmp(commander, "") || !strcmp(link, "")) {
+	if(!strcmp(commander, "") && !strcmp(link, "")) {
 		return ADDDECK_NO_COMMANDER;
 	}
 
-	pattern = "^[A-Za-z0-9 ._',-]{4,MAX_CARD_NAME_LEN}$";
+	snprintf(pattern, sizeof(pattern), "[A-Za-z0-9 ._-]{4,%d}$", MAX_CARD_NAME_LEN);
 	validate_rc = validate_regex(commander, pattern);
 	if (validate_rc != REGEX_OK) {
 		switch (validate_rc) {
@@ -51,6 +53,7 @@ int add_deck(const char *title,
 			case REGEX_COMPILE_ERR:
 			default:
 				// Something wrong with the validator or pattern — treat as validation failure.
+				fprintf(stderr,"\033[91mcommander: \033[0m");
 				return ADDDECK_VALIDATION_ERROR;
 		}
 	}
@@ -61,7 +64,7 @@ int add_deck(const char *title,
 		return ADDDECK_NO_OWNER;
 	}
 	
-	pattern = "^[A-Za-z0-9 ._'-]{4,64}$";
+	strcpy(pattern, "^[A-Za-z0-9 ._'-]{4,64}$");
 	validate_rc = validate_regex(owner, pattern);
 	if (validate_rc != REGEX_OK) {
 		switch (validate_rc) {
@@ -70,6 +73,7 @@ int add_deck(const char *title,
 			case REGEX_COMPILE_ERR:
 			default:
 				// Something wrong with the validator or pattern — treat as validation failure.
+				fprintf(stderr,"\033[91mowner: \033[0m");
 				return ADDDECK_VALIDATION_ERROR;
 		}
 	}
@@ -77,7 +81,7 @@ int add_deck(const char *title,
 	// Partner
 	//fprintf(stderr, "\033[90mPartner: %s\n\033[0m", partner);
 	if(strcmp(partner, "")){
-		pattern = "^[A-Za-z0-9 ._',-]{4,MAX_CARD_NAME_LEN}$";
+		snprintf(pattern, sizeof(pattern), "^[A-Za-z0-9 ._',-]{4,%d}$", MAX_CARD_NAME_LEN);
 		validate_rc = validate_regex(partner, pattern);
 		if (validate_rc != REGEX_OK) {
 			switch (validate_rc) {
@@ -86,6 +90,7 @@ int add_deck(const char *title,
 				case REGEX_COMPILE_ERR:
 				default:
 					// Something wrong with the validator or pattern — treat as validation failure.
+					fprintf(stderr, "\033[91mpartner: \033[0m");
 					return ADDDECK_VALIDATION_ERROR;
 			}
 		}
@@ -94,7 +99,7 @@ int add_deck(const char *title,
 	// Companion
 	//fprintf(stderr, "\033[90mCompanion: %s\n\033[0m", companion);
 	if(strcmp(companion, "")){
-		pattern = "^[A-Za-z0-9 ._'-]{4,MAX_CARD_NAME_LEN}$";
+		snprintf(pattern, sizeof(pattern), "^[A-Za-z0-9 ._'-]{4,%d}$", MAX_CARD_NAME_LEN);
 		validate_rc = validate_regex(companion, pattern);
 		if (validate_rc != REGEX_OK) {
 			switch (validate_rc) {
@@ -103,6 +108,7 @@ int add_deck(const char *title,
 				case REGEX_COMPILE_ERR:
 				default:
 					// Something wrong with the validator or pattern — treat as validation failure.
+					fprintf(stderr,"\033[91mcompanion: \033[0m");
 					return ADDDECK_VALIDATION_ERROR;
 			}
 		}
@@ -111,7 +117,9 @@ int add_deck(const char *title,
 	// Deck link
 	// https://archidekt.com/decks/5918632/halana
 	//fprintf(stderr, "\033[90mDeck link: %s\n\033[0m", link);
-	pattern = "^https:\\/\\/archidekt\\.com\\/decks\\/[0-9]{7}\\/[a-zA-Z_0-9]+$";
+	strcpy(pattern, "^https:\\/\\/archidekt\\.com\\/(api\\/)?decks\\/[0-9]{7}\\/([a-zA-Z_0-9]+\\/)?$");
+
+	ApiResponse deck_info;
 	if(strcmp(link, "")){
 		validate_rc = validate_regex(link, pattern);
 		if (validate_rc != REGEX_OK) {
@@ -121,14 +129,20 @@ int add_deck(const char *title,
 				case REGEX_COMPILE_ERR:
 				default:
 					// Something wrong with the validator or pattern — treat as validation failure.
+					fprintf(stderr, "\033[91mlink: \033[0m");
 					return ADDDECK_VALIDATION_ERROR;
 			}
 		}
+
+		deck_info = fetch_api(link);
+		printf("%s\n", deck_info.output);
+
+		free(deck_info.output);
 	}
 
 	// Card list
 	//fprintf(stderr, "\033[90mCard list\n\033[0m");
-	pattern = "^[0-9]{1,2}x? [a-zA-Z ,'-]+$";
+	snprintf(pattern, sizeof(pattern), "^[0-9]{1,2}x? [a-zA-Z ,'-]{4,%d}$", MAX_CARD_NAME_LEN);
 
 	char buffer[MAX_CARD_NAME_LEN];
 
@@ -158,6 +172,7 @@ int add_deck(const char *title,
 					case REGEX_COMPILE_ERR:
 					default:
 						// Something wrong with the validator or pattern — treat as validation failure.
+						fprintf(stderr, "\033[91mcard list: \033[0m");
 						return ADDDECK_VALIDATION_ERROR;
 				}
 			}
@@ -265,8 +280,19 @@ int add_deck_list_file_path(
 		const char *link, 
 		const char *card_list_path)
 {
-	FILE *card_list_file = fopen(card_list_path, "r");
-	if(!card_list_file) return ADDDECK_INVALID_CARD_LIST_PATH;
+	FILE *card_list_file = NULL;
+
+    // If card_list_path is non-NULL and non-empty, try to open it.
+    if (card_list_path != NULL && card_list_path[0] != '\0') {
+        card_list_file = fopen(card_list_path, "r");
+        if (!card_list_file) {
+            // Could not open file; return a sensible error code.
+            return ADDDECK_INVALID_CARD_LIST_PATH;
+        }
+    } else {
+        // path was NULL or empty -> treat as "no file passed"
+        card_list_file = NULL;
+    }
 
 	int rc = add_deck(
 			title,
@@ -281,7 +307,6 @@ int add_deck_list_file_path(
 	if(card_list_file){
 		fclose(card_list_file);
 	}
-
 	return rc;
 }
 

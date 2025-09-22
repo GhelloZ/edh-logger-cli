@@ -51,10 +51,6 @@ func init(){
 	addDeckCmd.Flags().StringVarP(&link, "link","l","","Optional. Link for the deck list")
 	addDeckCmd.Flags().StringVarP(&cardListFilePath, "card-list", "", "", "Optional. Full deck list. If an archidekt link is provided the deck list will be pulled from there by default.")
 
-	addDeckCmd.MarkFlagRequired("title")
-	addDeckCmd.MarkFlagRequired("commander")
-	addDeckCmd.MarkFlagRequired("owner")
-
 	deckCmd.AddCommand(addDeckCmd)
 }
 
