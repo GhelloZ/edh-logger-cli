@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Directory where you want to put cJSON
-DEST_DIR="libs/cJSON"
+DEST_DIR="lib"
 mkdir -p "$DEST_DIR"
 
 # Temp directory for cloning
@@ -15,5 +15,8 @@ git clone --quiet --depth=1 --branch "$(git ls-remote --tags --sort=v:refname ht
 # Copy the files you need
 cp "$TMP_DIR/cJSON.c" "$DEST_DIR/"
 cp "$TMP_DIR/cJSON.h" "$DEST_DIR/"
+
+cp "$TMP_DIR/cJSON_Utils.c" "$DEST_DIR/"
+cp "$TMP_DIR/cJSON_Utils.h" "$DEST_DIR/"
 
 echo "✅ cJSON updated to latest release: $(basename "$(git -C "$TMP_DIR" describe --tags --abbrev=0)")"
