@@ -1,5 +1,13 @@
 package cmd
 
+/*
+#cgo CFLAGS: -I${SRCDIR}/../lib
+#cgo LDFLAGS: -L${SRCDIR}/../build -ledh -lsqlite3
+#include "cJSON.h"
+#include <stdlib.h>
+*/
+import "C"
+
 import (
 	"fmt"
 	_ "embed"
@@ -24,5 +32,9 @@ func init(){
 }
 
 func printVersion(){
-	fmt.Printf("Go CLI version: %s", version)
+	cjsonVersion := C.cJSON_Version()
+	goCjsonVersion := C.GoString(cjsonVersion)
+
+	fmt.Printf("libedh version: %s", version)
+	fmt.Printf("cJSON version: %s\n", goCjsonVersion)
 }
