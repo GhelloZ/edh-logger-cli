@@ -254,7 +254,8 @@ DeckInfo *parse_deck_info(char *json_blob){
 
 	// Get title
 	cJSON *title = cJSON_GetObjectItem(json, "name");
-	if (cJSON_IsString(title)) info->title = strdup(title->valuestring);
+	if (cJSON_IsString(title) && title->valuestring)
+		info->title = strdup(title->valuestring);
 
 	// Get card list
 	cJSON *cardlist = cJSON_GetObjectItem(json, "cards");

@@ -15,6 +15,13 @@ int add_deck(
 		const char *link,
 		FILE *card_list){
 	fprintf(stderr, "\033[33mNot fully implemented\033[0m\n");
+
+	char *internal_title     = title      ? strdup(title)     : NULL;
+	char *internal_commander = commander  ? strdup(commander) : NULL;
+	char *internal_partner   = partner    ? strdup(partner)   : NULL;
+	char *internal_companion = companion  ? strdup(companion) : NULL;
+	char *internal_link      = link       ? strdup(link)      : NULL;
+
 	/**************
 	 * VALIDATION *
 	 **************/
@@ -123,8 +130,9 @@ int add_deck(
 
 	// Deck link
 	// https://archidekt.com/decks/5918632/halana
+	// the deck id can be either 7 or 8 digits long and i added a margin of error
 	//fprintf(stderr, "\033[90mDeck link: %s\n\033[0m", link);
-	strcpy(pattern, "^https:\\/\\/archidekt\\.com\\/(api\\/)?decks\\/[0-9]{7}(\\/[a-zA-Z_0-9]+)?(\\/)?$");
+	strcpy(pattern, "^https:\\/\\/archidekt\\.com\\/(api\\/)?decks\\/[0-9]{6,9}(\\/[a-zA-Z_0-9]+)?(\\/)?$");
 
 	ApiResponse deck_json;
 	DeckInfo *deck_info;
@@ -145,23 +153,50 @@ int add_deck(
 		}
 
 		deck_json = fetch_api(link);
+		//fprintf(stderr, "DEBUG: fetch_api returned %zu bytes\n", deck_json.size);
+		//if (deck_json.output) fprintf(stderr, "DEBUG: body: %.200s\n", deck_json.output);
 
 		deck_info = parse_deck_info(deck_json.output);
 
+		/*
+		fprintf(stderr, "DEBUG: parse_deck_info output:\n");
+		fprintf(stderr, "\tTitle: %s\n", deck_info->title);
+		fprintf(stderr, "\tCommander: %s\n", deck_info->commander);
+		fprintf(stderr, "\tPartner: %s\n", deck_info->partner);
+		fprintf(stderr, "\tCompanion: %s\n", deck_info->companion);
+		fprintf(stderr, "\tCard list: %.28s\n", deck_info->cardlist);
+		*/
+
 		// Filling out the parameters not overwritten by user input eccept the card list
+		//fprintf(stderr, "DEBUG: internal variables\n");
 		if(!strcmp(title, "")){
-			title = strdup(deck_info->title);
+			//fprintf(stderr, "\ttitle after check ok!\n");
+			if(deck_info->title){
+				internal_title = strdup(deck_info->title);
+				//fprintf(stderr, "\tafter strdup: %s\n", internal_title);
+			}
 		}
 		if(!strcmp(commander, "")){
-			commander = strdup(deck_info->commander);
+			//fprintf(stderr, "\tcommander after check ok!\n");
+			if(deck_info->commander){
+				internal_commander = strdup(deck_info->commander);
+				//fprintf(stderr, "\tafter strdup: %s\n", internal_commander);
+			}
 		}
 		if(!strcmp(partner, "")){
-			partner = strdup(deck_info->partner);
+			//fprintf(stderr, "\tpartner after check ok!\n");
+			if(deck_info->partner){
+				internal_partner = strdup(deck_info->partner);
+				//fprintf(stderr, "\tafter strdup: %s\n", internal_partner);
+			}
 		}
 		if(!strcmp(companion, "")){
-			companion = strdup(deck_info->companion);
+			//fprintf(stderr, "\tcompanion after check ok!\n");
+			if(deck_info->companion){
+				internal_companion = strdup(deck_info->companion);
+				//fprintf(stderr, "\tafter strdup: %s\n", internal_companion);
+			}
 		}
-
 	}
 
 	// Card list
@@ -180,8 +215,8 @@ int add_deck(
 			buffer[strcspn(buffer, "\n")] = '\0';			// Removes the newline char so that the
 															// regex doesn't fail
 
-			// Skips the line if it's empty
-			// When exporting from archidekt there's a blank line at the end
+															// Skips the line if it's empty
+															// When exporting from archidekt there's a blank line at the end
 			char *line = buffer;
 			while (*line == ' ' || *line == '\t') line++;
 			if (*line == '\0') continue;
@@ -205,8 +240,8 @@ int add_deck(
 	//fprintf(stderr, "\033[32mValidation completed!\033[0m\n");
 
 	/*************
-	* SQL PROMPT *
-	*************/
+	 * SQL PROMPT *
+	 *************/
 	// Get owner player_id
 	int rc;
 	sqlite3_stmt *stmt;
@@ -264,10 +299,10 @@ int add_deck(
 		return rc;
 	}
 
-	sqlite3_bind_text(stmt, 1, title, -1, SQLITE_STATIC);
-	sqlite3_bind_text(stmt, 2, commander, -1, SQLITE_STATIC);
-	sqlite3_bind_text(stmt, 3, partner && strlen(partner)>0 ? partner : NULL, -1, SQLITE_STATIC);
-	sqlite3_bind_text(stmt, 4, companion && strlen(companion)>0 ? companion : NULL, -1, SQLITE_STATIC);
+	sqlite3_bind_text(stmt, 1, internal_title, -1, SQLITE_STATIC);
+	sqlite3_bind_text(stmt, 2, internal_commander, -1, SQLITE_STATIC);
+	sqlite3_bind_text(stmt, 3, internal_partner && strlen(internal_partner)>0 ? internal_partner : NULL, -1, SQLITE_STATIC);
+	sqlite3_bind_text(stmt, 4, internal_companion && strlen(internal_companion)>0 ? internal_companion : NULL, -1, SQLITE_STATIC);
 	sqlite3_bind_text(stmt, 5, card_list_text ? card_list_text : NULL, -1, SQLITE_STATIC);
 	sqlite3_bind_int(stmt, 6, owner_id);
 
@@ -296,6 +331,13 @@ int add_deck(
 	}
 
 	sqlite3_close(db);
+
+	free(internal_title);
+	free(internal_commander);
+	free(internal_partner);
+	free(internal_companion);
+	free(internal_link);
+
 	return ADDDECK_OK;
 }
 
