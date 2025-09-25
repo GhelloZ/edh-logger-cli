@@ -117,7 +117,7 @@ int add_deck(const char *title,
 	// Deck link
 	// https://archidekt.com/decks/5918632/halana
 	//fprintf(stderr, "\033[90mDeck link: %s\n\033[0m", link);
-	strcpy(pattern, "^https:\\/\\/archidekt\\.com\\/(api\\/)?decks\\/[0-9]{7}\\/([a-zA-Z_0-9]+\\/)?$");
+	strcpy(pattern, "^https:\\/\\/archidekt\\.com\\/(api\\/)?decks\\/[0-9]{7}(\\/[a-zA-Z_0-9]+)?(\\/)?$");
 
 	ApiResponse deck_info;
 	if(strcmp(link, "")){

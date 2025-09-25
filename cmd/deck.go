@@ -95,7 +95,7 @@ func runAddDeck() int {
 	case C.ADDDECK_NO_OWNER:
 		fmt.Println("No owner provided")
 	case C.ADDDECK_INVALID_OWNER:
-		fmt.Println("Owner failed regex validation")
+		fmt.Println("Owner not in Players table or failed regex validation")
 	case C.ADDDECK_INVALID_PARTNER:
 		fmt.Println("Partner failed regex validation")
 	case C.ADDDECK_INVALID_COMPANION:
