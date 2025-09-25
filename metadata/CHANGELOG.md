@@ -1,8 +1,7 @@
 ## What's new
-Nothing new for now
+- [x] Now the script is able to fetch deck information directly from Archidekt! If the user still wants to set some infos manually he can still do so and those will overwrite the infos fetched from the provided link
 ## Fixes
-- [x] Cleaned up some dependencies
-- [ ] Makefile fix for AUR release
+- [x] Makefile fix for AUR release
 ## GitHub stuff
 - [ ] Fix workflows
 ## TODO
