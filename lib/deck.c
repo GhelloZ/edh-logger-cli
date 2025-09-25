@@ -6,7 +6,8 @@
 #include "deck.h"
 #include "utils.h"
 
-int add_deck(const char *title,
+int add_deck(
+		const char *title,
 		const char *commander,
 		const char *owner,
 		const char *partner,
@@ -27,19 +28,19 @@ int add_deck(const char *title,
 	int validate_rc;
 
 	if(strcmp(title, "")){
-	strcpy(pattern, "[A-Za-z0-9 ._'-]{4,64}$");
-	validate_rc = validate_regex(title, pattern);
-	if (validate_rc != REGEX_OK) {
-		switch (validate_rc) {
-			case REGEX_NO_MATCH:
-				return ADDDECK_INVALID_TITLE;    // name doesn't match allowed pattern
-			case REGEX_COMPILE_ERR:
-			default:
-				// Something wrong with the validator or pattern — treat as validation failure.
-				fprintf(stderr,"\033[91mTitle: \033[0m");
-				return ADDDECK_VALIDATION_ERROR;
+		strcpy(pattern, "[A-Za-z0-9 ._'-]{4,64}$");
+		validate_rc = validate_regex(title, pattern);
+		if (validate_rc != REGEX_OK) {
+			switch (validate_rc) {
+				case REGEX_NO_MATCH:
+					return ADDDECK_INVALID_TITLE;    // name doesn't match allowed pattern
+				case REGEX_COMPILE_ERR:
+				default:
+					// Something wrong with the validator or pattern — treat as validation failure.
+					fprintf(stderr,"\033[91mTitle: \033[0m");
+					return ADDDECK_VALIDATION_ERROR;
+			}
 		}
-	}
 	}
 
 	// Commander
@@ -49,19 +50,19 @@ int add_deck(const char *title,
 	}
 
 	if(strcmp(commander, "")){
-	snprintf(pattern, sizeof(pattern), "[A-Za-z0-9 ._-]{4,%d}$", MAX_CARD_NAME_LEN);
-	validate_rc = validate_regex(commander, pattern);
-	if (validate_rc != REGEX_OK) {
-		switch (validate_rc) {
-			case REGEX_NO_MATCH:
-				return ADDDECK_INVALID_COMMANDER;
-			case REGEX_COMPILE_ERR:
-			default:
-				// Something wrong with the validator or pattern — treat as validation failure.
-				fprintf(stderr,"\033[91mcommander: \033[0m");
-				return ADDDECK_VALIDATION_ERROR;
+		snprintf(pattern, sizeof(pattern), "[A-Za-z0-9 ._-]{4,%d}$", MAX_CARD_NAME_LEN);
+		validate_rc = validate_regex(commander, pattern);
+		if (validate_rc != REGEX_OK) {
+			switch (validate_rc) {
+				case REGEX_NO_MATCH:
+					return ADDDECK_INVALID_COMMANDER;
+				case REGEX_COMPILE_ERR:
+				default:
+					// Something wrong with the validator or pattern — treat as validation failure.
+					fprintf(stderr,"\033[91mcommander: \033[0m");
+					return ADDDECK_VALIDATION_ERROR;
+			}
 		}
-	}
 	}
 
 	// Owner
@@ -69,7 +70,7 @@ int add_deck(const char *title,
 	if(!strcmp(owner, "")) {
 		return ADDDECK_NO_OWNER;
 	}
-	
+
 	strcpy(pattern, "^[A-Za-z0-9 ._'-]{4,64}$");
 	validate_rc = validate_regex(owner, pattern);
 	if (validate_rc != REGEX_OK) {
@@ -125,8 +126,11 @@ int add_deck(const char *title,
 	//fprintf(stderr, "\033[90mDeck link: %s\n\033[0m", link);
 	strcpy(pattern, "^https:\\/\\/archidekt\\.com\\/(api\\/)?decks\\/[0-9]{7}(\\/[a-zA-Z_0-9]+)?(\\/)?$");
 
-	ApiResponse deck_info;
+	ApiResponse deck_json;
+	DeckInfo *deck_info;
+
 	if(strcmp(link, "")){
+
 		validate_rc = validate_regex(link, pattern);
 		if (validate_rc != REGEX_OK) {
 			switch (validate_rc) {
@@ -140,10 +144,24 @@ int add_deck(const char *title,
 			}
 		}
 
-		deck_info = fetch_api(link);
+		deck_json = fetch_api(link);
 
-		parse_deck_info(deck_info.output);
-		free(deck_info.output);
+		deck_info = parse_deck_info(deck_json.output);
+
+		// Filling out the parameters not overwritten by user input eccept the card list
+		if(!strcmp(title, "")){
+			title = strdup(deck_info->title);
+		}
+		if(!strcmp(commander, "")){
+			commander = strdup(deck_info->commander);
+		}
+		if(!strcmp(partner, "")){
+			partner = strdup(deck_info->partner);
+		}
+		if(!strcmp(companion, "")){
+			companion = strdup(deck_info->companion);
+		}
+
 	}
 
 	// Card list
@@ -185,7 +203,7 @@ int add_deck(const char *title,
 		}
 	}
 	//fprintf(stderr, "\033[32mValidation completed!\033[0m\n");
-	
+
 	/*************
 	* SQL PROMPT *
 	*************/
@@ -227,6 +245,11 @@ int add_deck(const char *title,
 
 		fread(card_list_text, 1, file_size, card_list);
 		card_list_text[file_size] = '\0';
+	} else if (strcmp(link, "")) {
+		card_list_text = strdup(deck_info->cardlist);
+
+		free(deck_json.output);
+		free_deck_info(deck_info);
 	}
 
 	// Insert into deck table
@@ -288,17 +311,17 @@ int add_deck_list_file_path(
 {
 	FILE *card_list_file = NULL;
 
-    // If card_list_path is non-NULL and non-empty, try to open it.
-    if (card_list_path != NULL && card_list_path[0] != '\0') {
-        card_list_file = fopen(card_list_path, "r");
-        if (!card_list_file) {
-            // Could not open file; return a sensible error code.
-            return ADDDECK_INVALID_CARD_LIST_PATH;
-        }
-    } else {
-        // path was NULL or empty -> treat as "no file passed"
-        card_list_file = NULL;
-    }
+	// If card_list_path is non-NULL and non-empty, try to open it.
+	if (card_list_path != NULL && card_list_path[0] != '\0') {
+		card_list_file = fopen(card_list_path, "r");
+		if (!card_list_file) {
+			// Could not open file; return a sensible error code.
+			return ADDDECK_INVALID_CARD_LIST_PATH;
+		}
+	} else {
+		// path was NULL or empty -> treat as "no file passed"
+		card_list_file = NULL;
+	}
 
 	int rc = add_deck(
 			title,
