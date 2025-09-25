@@ -66,73 +66,73 @@ int init_db(){
 
 	// SQL schema
 	const char* sql_tables =
-    "PRAGMA foreign_keys = ON;"
-    /* Games */
-    "CREATE TABLE IF NOT EXISTS Games ("
-    "    game_id      INTEGER PRIMARY KEY AUTOINCREMENT,"
-    "    date_played  INTEGER NOT NULL,"
-    "    duration_min INTEGER,"
-    "    comment      TEXT"
-    ");"
-    /* Players */
-    "CREATE TABLE IF NOT EXISTS Players ("
-    "    player_id        INTEGER PRIMARY KEY AUTOINCREMENT,"
-    "    name             TEXT NOT NULL UNIQUE,"
-    "    total_games      INTEGER DEFAULT 0,"
-    "    wins             INTEGER DEFAULT 0,"
-    "    second_places    INTEGER DEFAULT 0,"
-    "    third_places     INTEGER DEFAULT 0,"
-    "    other_finishes   INTEGER DEFAULT 0,"
-    "    decks_owned_cnt  INTEGER DEFAULT 0,"
-    "    decks_used_cnt   INTEGER DEFAULT 0"
-    ");"
-    /* Decks */
-    "CREATE TABLE IF NOT EXISTS Decks ("
-    "    deck_id         INTEGER PRIMARY KEY AUTOINCREMENT,"
-    "    title           TEXT NOT NULL,"
-    "    commander_1     TEXT NOT NULL,"
-    "    commander_2     TEXT,"
-    "    companion       TEXT,"
-    "    card_list       TEXT,"
-    "    total_games     INTEGER DEFAULT 0,"
-    "    wins            INTEGER DEFAULT 0,"
-    "    second_places   INTEGER DEFAULT 0,"
-    "    third_places    INTEGER DEFAULT 0,"
-    "    other_finishes  INTEGER DEFAULT 0,"
-    "    owner_id        INTEGER,"
-    "    FOREIGN KEY(owner_id) REFERENCES Players(player_id) ON DELETE SET NULL"
-    ");"
-    /* GamePlayers: which player used which deck in a game */
-    "CREATE TABLE IF NOT EXISTS GamePlayers ("
-    "    game_id     INTEGER NOT NULL,"
-    "    player_id   INTEGER NOT NULL,"
-    "    deck_id     INTEGER NOT NULL,"
-    "    rank        INTEGER,"
-    "    FOREIGN KEY (game_id) REFERENCES Games(game_id) ON DELETE CASCADE,"
-    "    FOREIGN KEY (player_id) REFERENCES Players(player_id) ON DELETE CASCADE,"
-    "    FOREIGN KEY (deck_id) REFERENCES Decks(deck_id) ON DELETE CASCADE,"
-    "    PRIMARY KEY (game_id, player_id)"
-    ");"
-    /* PlayerDeckStats: per-player-per-deck aggregated counters (fast lookups & UPSERT-able) */
-    "CREATE TABLE IF NOT EXISTS PlayerDeckStats ("
-    "    player_id      INTEGER NOT NULL,"
-    "    deck_id        INTEGER NOT NULL,"
-    "    total_games    INTEGER DEFAULT 0,"
-    "    wins           INTEGER DEFAULT 0,"
-    "    second_places  INTEGER DEFAULT 0,"
-    "    third_places   INTEGER DEFAULT 0,"
-    "    other_finishes INTEGER DEFAULT 0,"
-    "    PRIMARY KEY (player_id, deck_id),"
-    "    FOREIGN KEY (player_id) REFERENCES Players(player_id) ON DELETE CASCADE,"
-    "    FOREIGN KEY (deck_id)   REFERENCES Decks(deck_id)   ON DELETE CASCADE"
-    ");"
-    /* Useful indexes */
-    "CREATE INDEX IF NOT EXISTS idx_decks_owner_id ON Decks(owner_id);"
-    "CREATE INDEX IF NOT EXISTS idx_gp_deck_id ON GamePlayers(deck_id);"
-    "CREATE INDEX IF NOT EXISTS idx_gp_player_id ON GamePlayers(player_id);"
-    "CREATE INDEX IF NOT EXISTS idx_pdst_player_id ON PlayerDeckStats(player_id);"
-    "CREATE INDEX IF NOT EXISTS idx_pdst_deck_id ON PlayerDeckStats(deck_id);"
-    ;
+		"PRAGMA foreign_keys = ON;"
+		/* Games */
+		"CREATE TABLE IF NOT EXISTS Games ("
+		"    game_id      INTEGER PRIMARY KEY AUTOINCREMENT,"
+		"    date_played  INTEGER NOT NULL,"
+		"    duration_min INTEGER,"
+		"    comment      TEXT"
+		");"
+		/* Players */
+		"CREATE TABLE IF NOT EXISTS Players ("
+		"    player_id        INTEGER PRIMARY KEY AUTOINCREMENT,"
+		"    name             TEXT NOT NULL UNIQUE,"
+		"    total_games      INTEGER DEFAULT 0,"
+		"    wins             INTEGER DEFAULT 0,"
+		"    second_places    INTEGER DEFAULT 0,"
+		"    third_places     INTEGER DEFAULT 0,"
+		"    other_finishes   INTEGER DEFAULT 0,"
+		"    decks_owned_cnt  INTEGER DEFAULT 0,"
+		"    decks_used_cnt   INTEGER DEFAULT 0"
+		");"
+		/* Decks */
+		"CREATE TABLE IF NOT EXISTS Decks ("
+		"    deck_id         INTEGER PRIMARY KEY AUTOINCREMENT,"
+		"    title           TEXT NOT NULL,"
+		"    commander_1     TEXT NOT NULL,"
+		"    commander_2     TEXT,"
+		"    companion       TEXT,"
+		"    card_list       TEXT,"
+		"    total_games     INTEGER DEFAULT 0,"
+		"    wins            INTEGER DEFAULT 0,"
+		"    second_places   INTEGER DEFAULT 0,"
+		"    third_places    INTEGER DEFAULT 0,"
+		"    other_finishes  INTEGER DEFAULT 0,"
+		"    owner_id        INTEGER,"
+		"    FOREIGN KEY(owner_id) REFERENCES Players(player_id) ON DELETE SET NULL"
+		");"
+		/* GamePlayers: which player used which deck in a game */
+		"CREATE TABLE IF NOT EXISTS GamePlayers ("
+		"    game_id     INTEGER NOT NULL,"
+		"    player_id   INTEGER NOT NULL,"
+		"    deck_id     INTEGER NOT NULL,"
+		"    rank        INTEGER,"
+		"    FOREIGN KEY (game_id) REFERENCES Games(game_id) ON DELETE CASCADE,"
+		"    FOREIGN KEY (player_id) REFERENCES Players(player_id) ON DELETE CASCADE,"
+		"    FOREIGN KEY (deck_id) REFERENCES Decks(deck_id) ON DELETE CASCADE,"
+		"    PRIMARY KEY (game_id, player_id)"
+		");"
+		/* PlayerDeckStats: per-player-per-deck aggregated counters (fast lookups & UPSERT-able) */
+		"CREATE TABLE IF NOT EXISTS PlayerDeckStats ("
+		"    player_id      INTEGER NOT NULL,"
+		"    deck_id        INTEGER NOT NULL,"
+		"    total_games    INTEGER DEFAULT 0,"
+		"    wins           INTEGER DEFAULT 0,"
+		"    second_places  INTEGER DEFAULT 0,"
+		"    third_places   INTEGER DEFAULT 0,"
+		"    other_finishes INTEGER DEFAULT 0,"
+		"    PRIMARY KEY (player_id, deck_id),"
+		"    FOREIGN KEY (player_id) REFERENCES Players(player_id) ON DELETE CASCADE,"
+		"    FOREIGN KEY (deck_id)   REFERENCES Decks(deck_id)   ON DELETE CASCADE"
+		");"
+		/* Useful indexes */
+		"CREATE INDEX IF NOT EXISTS idx_decks_owner_id ON Decks(owner_id);"
+		"CREATE INDEX IF NOT EXISTS idx_gp_deck_id ON GamePlayers(deck_id);"
+		"CREATE INDEX IF NOT EXISTS idx_gp_player_id ON GamePlayers(player_id);"
+		"CREATE INDEX IF NOT EXISTS idx_pdst_player_id ON PlayerDeckStats(player_id);"
+		"CREATE INDEX IF NOT EXISTS idx_pdst_deck_id ON PlayerDeckStats(deck_id);"
+		;
 
 	// Run sql prompts
 	rc = sqlite3_exec(db, sql_tables, 0, 0, &err_msg);
@@ -188,22 +188,22 @@ struct curl_response {
 
 // Callback function for libcurl to write the response into output
 static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp) {
-    size_t real_size = size * nmemb;
-    struct curl_response *mem = (struct curl_response *)userp;
+	size_t real_size = size * nmemb;
+	struct curl_response *mem = (struct curl_response *)userp;
 
-    char *ptr = realloc(mem->output, mem->size + real_size + 1);
-    if (ptr == NULL) {
-        // out of output
-        printf("Not enough output (realloc returned NULL)\n");
-        return 0;
-    }
+	char *ptr = realloc(mem->output, mem->size + real_size + 1);
+	if (ptr == NULL) {
+		// out of output
+		printf("Not enough output (realloc returned NULL)\n");
+		return 0;
+	}
 
-    mem->output = ptr;
-    memcpy(&(mem->output[mem->size]), contents, real_size);
-    mem->size += real_size;
-    mem->output[mem->size] = 0; // null-terminate
+	mem->output = ptr;
+	memcpy(&(mem->output[mem->size]), contents, real_size);
+	mem->size += real_size;
+	mem->output[mem->size] = 0; // null-terminate
 
-    return real_size;
+	return real_size;
 }
 
 ApiResponse fetch_api(const char *uri){
@@ -244,8 +244,81 @@ ApiResponse fetch_api(const char *uri){
 	return response; // Must free in the caller
 }
 
-void parse_deck_info(char *json_blob){
-	cJSON *json = cJSON_Parse(json_blob);
+DeckInfo *parse_deck_info(char *json_blob){
+	if (!strcmp(json_blob, "")) return NULL;
 
-//	printf("func test: %s\n", cJSON_Print(json));
+	cJSON *json = cJSON_Parse(json_blob);
+	if (!json) return NULL;
+
+	DeckInfo *info = calloc(1, sizeof(DeckInfo));
+
+	// Get title
+	cJSON *title = cJSON_GetObjectItem(json, "name");
+	if (cJSON_IsString(title)) info->title = strdup(title->valuestring);
+
+	// Get card list
+	cJSON *cardlist = cJSON_GetObjectItem(json, "cards");
+	int entry_count = cJSON_GetArraySize(cardlist);
+
+	size_t buffer_size = 1; // for '\0'
+	char *buffer = malloc(buffer_size);
+	buffer[0] = '\0';
+
+	for (int i = 0; i < entry_count; i++) {
+		cJSON *entry = cJSON_GetArrayItem(cardlist, i);
+		cJSON *categories = cJSON_GetObjectItem(entry, "categories");
+		cJSON *quantity = cJSON_GetObjectItem(entry, "quantity");
+		cJSON *card = cJSON_GetObjectItem(entry, "card");
+		cJSON *oracle = cJSON_GetObjectItem(card, "oracleCard");
+		cJSON *name = cJSON_GetObjectItem(oracle, "name");
+
+		if (!cJSON_IsNumber(quantity) || !cJSON_IsString(name)) continue;
+
+		// Commander/Partner/Companion detection
+		if (cJSON_IsArray(categories)) {
+			for (int j = 0; j < cJSON_GetArraySize(categories); j++) {
+				cJSON *cat = cJSON_GetArrayItem(categories, j);
+				if (strcmp(cat->valuestring, "Commander") == 0) {
+					info->commander = strdup(name->valuestring);
+				} else if (strcmp(cat->valuestring, "Partner") == 0) {
+					info->partner = strdup(name->valuestring);
+				}
+			}
+		}
+
+		if (cJSON_IsTrue(cJSON_GetObjectItem(entry, "companion"))) {
+			info->companion = strdup(name->valuestring);
+		}
+
+		// Format "Nx Card Name"
+		char line[256];
+		snprintf(line, sizeof(line), "%dx %s\n", quantity->valueint, name->valuestring);
+
+		// Append to buffer
+		buffer_size += strlen(line);
+		buffer = realloc(buffer, buffer_size);
+		strcat(buffer, line);
+	}
+
+	// Remove trailing newline if present
+	size_t len = strlen(buffer);
+	if (len > 0 && buffer[len - 1] == '\n') {
+		buffer[len - 1] = '\0';
+	}
+	info->cardlist = buffer;
+
+	cJSON_Delete(json);
+	return info;
+}
+
+void free_deck_info(DeckInfo *info) {
+    if (!info) return;
+
+    free(info->title);
+    free(info->commander);
+    free(info->partner);
+    free(info->companion);
+    free(info->cardlist);
+
+    free(info);
 }

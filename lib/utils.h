@@ -37,6 +37,7 @@ int init_db();
 int check_if_db_exists();
 int validate_regex(const char* string, const char* pattern);
 ApiResponse fetch_api(const char *uri);
-void parse_deck_info(char *json_blob);
+DeckInfo *parse_deck_info(char *json_blob);
+void free_deck_info(DeckInfo *info);
 
 #endif
