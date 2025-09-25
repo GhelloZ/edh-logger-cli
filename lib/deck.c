@@ -24,8 +24,11 @@ int add_deck(const char *title,
 	}
 
 	char pattern[256];
+	int validate_rc;
+
+	if(strcmp(title, "")){
 	strcpy(pattern, "[A-Za-z0-9 ._'-]{4,64}$");
-	int validate_rc = validate_regex(title, pattern);
+	validate_rc = validate_regex(title, pattern);
 	if (validate_rc != REGEX_OK) {
 		switch (validate_rc) {
 			case REGEX_NO_MATCH:
@@ -37,6 +40,7 @@ int add_deck(const char *title,
 				return ADDDECK_VALIDATION_ERROR;
 		}
 	}
+	}
 
 	// Commander
 	//fprintf(stderr, "\033[90mCommander: %s\n\033[0m", commander);
@@ -44,6 +48,7 @@ int add_deck(const char *title,
 		return ADDDECK_NO_COMMANDER;
 	}
 
+	if(strcmp(commander, "")){
 	snprintf(pattern, sizeof(pattern), "[A-Za-z0-9 ._-]{4,%d}$", MAX_CARD_NAME_LEN);
 	validate_rc = validate_regex(commander, pattern);
 	if (validate_rc != REGEX_OK) {
@@ -56,6 +61,7 @@ int add_deck(const char *title,
 				fprintf(stderr,"\033[91mcommander: \033[0m");
 				return ADDDECK_VALIDATION_ERROR;
 		}
+	}
 	}
 
 	// Owner
