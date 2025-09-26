@@ -28,7 +28,7 @@ int add_game(
 	 *								Decks used by the players in the game. Must be the same number of players specified
 	 *								and in the same order
 	 */
-	fprintf(stderr,"WIP\n");
+	fprintf(stderr, "\033[33mNot fully implemented\033[0m\n");
 
 	if (!players || !decks) {
 		fprintf(stderr, "game.c: add_game: players and decks must not be NULL\n");
