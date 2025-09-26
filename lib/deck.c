@@ -14,8 +14,6 @@ int add_deck(
 		const char *companion,
 		const char *link,
 		FILE *card_list){
-	fprintf(stderr, "\033[33mNot fully implemented\033[0m\n");
-
 	char *internal_title     = title      ? strdup(title)     : NULL;
 	char *internal_commander = commander  ? strdup(commander) : NULL;
 	char *internal_partner   = partner    ? strdup(partner)   : NULL;
