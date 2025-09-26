@@ -77,7 +77,7 @@ int init_db(){
 		/* Players */
 		"CREATE TABLE IF NOT EXISTS Players ("
 		"    player_id        INTEGER PRIMARY KEY AUTOINCREMENT,"
-		"    name             TEXT NOT NULL UNIQUE,"
+		"    name             TEXT NOT NULL UNIQUE CHECK (trim(name) <> ''),"
 		"    total_games      INTEGER DEFAULT 0,"
 		"    wins             INTEGER DEFAULT 0,"
 		"    second_places    INTEGER DEFAULT 0,"
@@ -89,8 +89,8 @@ int init_db(){
 		/* Decks */
 		"CREATE TABLE IF NOT EXISTS Decks ("
 		"    deck_id         INTEGER PRIMARY KEY AUTOINCREMENT,"
-		"    title           TEXT NOT NULL,"
-		"    commander_1     TEXT NOT NULL,"
+		"    title           TEXT NOT NULL CHECK (trim(title) <> ''),"
+		"    commander_1     TEXT NOT NULL CHECK (trim(commander_1) <> ''),"
 		"    commander_2     TEXT,"
 		"    companion       TEXT,"
 		"    card_list       TEXT,"
@@ -99,7 +99,7 @@ int init_db(){
 		"    second_places   INTEGER DEFAULT 0,"
 		"    third_places    INTEGER DEFAULT 0,"
 		"    other_finishes  INTEGER DEFAULT 0,"
-		"    owner_id        INTEGER,"
+		"    owner_id        INTEGER NOT NULL,"
 		"    FOREIGN KEY(owner_id) REFERENCES Players(player_id) ON DELETE SET NULL"
 		");"
 		/* GamePlayers: which player used which deck in a game */
