@@ -1,7 +1,8 @@
 ## What's new
-- [x] Now the script is able to fetch deck information directly from Archidekt! If the user still wants to set some infos manually he can still do so and those will overwrite the infos fetched from the provided link
+Nothing new at the moment
 ## Fixes
-- [x] Makefile fix for AUR release
+- [ ] Fixed partner fetching logic
+- [ ] Database initialization now makes the Title, Commander and Owner fields mandatory
 ## GitHub stuff
 - [ ] Fix workflows
 ## TODO
