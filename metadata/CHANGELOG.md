@@ -3,6 +3,8 @@ Nothing new at the moment
 ## Fixes
 - [ ] Fixed partner fetching logic
 - [ ] Database initialization now makes the Title, Commander and Owner fields mandatory
+- [ ] Adding games properly updates the rank fields for each player and the number of played games
+- [ ] Adding games properly updates the rank fields for each deck and the number of played games
 ## GitHub stuff
 - [ ] Fix workflows
 ## TODO
