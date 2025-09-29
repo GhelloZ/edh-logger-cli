@@ -13,12 +13,11 @@ When it'll be complete I'll worry about writing a proper README.md file.
 blah blah use it like this blah blah
 -->
 # Dependencies
-## Compiling dependencies
 - [gcc](https://gcc.gnu.org/install/)
 - [go](https://go.dev/doc/install/source)
 - [make](https://www.gnu.org/software/make/#download)
-## Runtime dependencies
 - [sqlite](https://sqlite.org/src/doc/trunk/README.md)
+- [libcurl](https://curl.se/docs/install.html)
 You must install these manually, otherwise the package can't be compiled
 
 # Installation
