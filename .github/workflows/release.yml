@@ -87,7 +87,7 @@ jobs:
       - name: Build binary
         run: |
           set -euo pipefail
-          make clean && make
+          make clean && time make
       - name: Validate compiled binary
         id: validate_binary
         run: |

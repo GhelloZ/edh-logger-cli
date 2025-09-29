@@ -32,7 +32,7 @@ $(BUILD_LIB_DIR)/%.o: lib/%.c
 $(BIN): $(LIB_ARCHIVE)
 	@mkdir -p $(BUILD_DIR)
 	# Tell cgo/linker to look in build/ for libedh.a and link with -ledh
-	time CGO_LDFLAGS="-L$(BUILD_DIR) -ledh -lcurl" go build -o $(BIN)
+	CGO_LDFLAGS="-L$(BUILD_DIR) -ledh -lcurl" go build -o $(BIN)
 
 cleanup-version:
 	-@rm -f cmd/VERSION
