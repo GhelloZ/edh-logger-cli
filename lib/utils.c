@@ -275,20 +275,20 @@ DeckInfo *parse_deck_info(char *json_blob){
 
 		if (!cJSON_IsNumber(quantity) || !cJSON_IsString(name)) continue;
 
-		// Commander/Partner/Companion detection
-		if (cJSON_IsArray(categories)) {
+		// Companion/Commander/Partner check
+		// If the card is tagged as companion, it skips the commander/partner check
+		// to avoid categorizing the card both as companion and as commander
+		if (cJSON_IsTrue(cJSON_GetObjectItem(entry, "companion"))) {
+			info->companion = strdup(name->valuestring);
+		} else if (cJSON_IsArray(categories)) {
 			for (int j = 0; j < cJSON_GetArraySize(categories); j++) {
 				cJSON *cat = cJSON_GetArrayItem(categories, j);
-				if (strcmp(cat->valuestring, "Commander") == 0) {
+				if (strcmp(cat->valuestring, "Commander") == 0 && info->commander == NULL) {
 					info->commander = strdup(name->valuestring);
-				} else if (strcmp(cat->valuestring, "Partner") == 0) {
+				} else if (strcmp(cat->valuestring, "Commander") == 0) {
 					info->partner = strdup(name->valuestring);
 				}
 			}
-		}
-
-		if (cJSON_IsTrue(cJSON_GetObjectItem(entry, "companion"))) {
-			info->companion = strdup(name->valuestring);
 		}
 
 		// Format "Nx Card Name"
