@@ -85,6 +85,7 @@ jobs:
       - name: Build binary
         run: |
           set -euo pipefail
+          apt install curl sqlite
           make clean && make
       - name: Validate compiled binary
         id: validate_binary
