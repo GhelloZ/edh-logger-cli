@@ -83,11 +83,10 @@ jobs:
           echo "OK: both metadata/VERSION and metadata/CHANGELOG.md were changed in this push."
 
       - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get upgrade && sudo apt-get install -y libcurl4-openssl-dev
+        run: sudo apt-get install -y libcurl4-openssl-dev
       - name: Build binary
         run: |
           set -euo pipefail
-          apt install curl sqlite
           make clean && make
       - name: Validate compiled binary
         id: validate_binary

@@ -5,7 +5,7 @@ Nothing new at the moment
 - [ ] Adding games properly updates the rank fields for each player and the number of played games
 - [ ] Adding games properly updates the rank fields for each deck and the number of played games
 ## GitHub stuff
-- [x] Almost certainly fixed build step in workflow
+- [x] Almost certainly fixed build step in workflow (I'm losing all hopes)
 - [x] Added installation scripts that pull the binary from github as an alternative to compiling the project
 - [ ] Fix workflows
 ## TODO
