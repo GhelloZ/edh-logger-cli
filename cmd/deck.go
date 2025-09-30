@@ -80,10 +80,10 @@ func runAddDeck() int {
 		cCardListFilePath,
 	))
 
-	fmt.Printf("%d: ", rc)
+	//fmt.Printf("%d: ", rc)
 	switch rc {
 	case C.ADDDECK_OK:
-		fmt.Println("Ok.")
+		fmt.Println("Deck succesfully added to the database")
 	case C.ADDDECK_NO_TITLE:
 		fmt.Println("No deck title provided")
 	case C.ADDDECK_INVALID_TITLE:
