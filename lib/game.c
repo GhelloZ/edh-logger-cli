@@ -2,12 +2,13 @@
 #include <stdlib.h>
 #include <sqlite3.h>
 #include "utils.h"
+#include "game.h"
 
 int add_game(
 		char** players,
 		char** decks,
-		char** ranks,
-		unsigned short int count,
+		int* ranks,
+		size_t player_count,
 		unsigned short int duration,
 		long long int timestamp
 		){
@@ -34,18 +35,30 @@ int add_game(
 		fprintf(stderr, "game.c: add_game: players and decks must not be NULL\n");
 		return -1;
 	}
-	if (count == 0) {
-		fprintf(stderr, "game.c: add_game: count is 0\n");
+	if (player_count == 0) {
+		fprintf(stderr, "game.c: add_game: player_count is 0\n");
 		return -1;
+	}
+
+	// When the caller provides a NULL list of ranks it get's automatically
+	// allocated and filled in
+	unsigned short int own_ranks = 0;
+	if (ranks == NULL){
+		ranks = malloc(sizeof(int)*player_count);
+		if(ranks == NULL){
+			fprintf(stderr, "Failed to allocate memory to rank list");
+			return ADDGAME_FAILED_ALLOCATION;
+		}
+		own_ranks = 1;
 	}
 
 	/*
 	fprintf(stderr, "game.c: add_game:\n");
-	fprintf(stderr, "\tCount: %hu\n", count);
+	fprintf(stderr, "\tCount: %hu\n", player_count);
 	fprintf(stderr, "\tTime: %hu\n", duration);
 	fprintf(stderr, "\tTimestamp: %lld\n", timestamp);
 
-	for (unsigned short int i = 0; i < count; i++) {
+	for (unsigned short int i = 0; i < player_count; i++) {
 		const char *pstr = "(null)";
 		const char *dstr = "(null)";
 		const char *rstr = "(null)";
@@ -99,12 +112,16 @@ int add_game(
 
 	// GamePlayers
 	const char* sql_gameplayers = 
+		// Inserts the players of the game in the GamePlayers table
 		"INSERT INTO GamePlayers (game_id, player_id, deck_id, rank)"
 		"VALUES (?, "
 		" (SELECT player_id FROM Players WHERE name = ?), "
 		" (SELECT deck_id FROM Decks WHERE title = ?), "
 		" ? "
-		");";
+		");"
+		// Updates the number of played games for each player and deck
+		"UPDATE Players SET total_games = total_games+1 WHERE name = ?;"
+		"UPDATE Decks SET total_games = total_games+1 WHERE title = ?";
 
 	rc = sqlite3_prepare_v2(db, sql_gameplayers, -1, &stmt, NULL);
 	if (rc != SQLITE_OK){
@@ -113,13 +130,15 @@ int add_game(
 		return -1;
 	}
 
-	for (int i=0; i<count; i++){
+	for (int i=0; i<player_count; i++){
 		sqlite3_bind_int64(stmt, 1, game_id);
 		sqlite3_bind_text(stmt, 2, players[i], -1, SQLITE_STATIC);
 		sqlite3_bind_text(stmt, 3, decks[i], -1, SQLITE_STATIC);
+		sqlite3_bind_text(stmt, 5, players[i], -1, SQLITE_STATIC);
+		sqlite3_bind_text(stmt, 6, decks[i], -1, SQLITE_STATIC);
 
 		if(ranks != NULL){
-			sqlite3_bind_int(stmt, 4, atoi(ranks[i]));
+			sqlite3_bind_int(stmt, 4, ranks[i]);
 		} else {
 			sqlite3_bind_int(stmt,4, i+1);
 		}
@@ -134,9 +153,36 @@ int add_game(
 		sqlite3_reset(stmt);
 	}
 
+	const char *sql_win = 
+		"UPDATE Players SET wins = wins+1 WHERE name = ?;"
+		"UPDATE Decks SET wins = wins+1 WHERE title = ?";
+	const char *sql_second_place = 
+		"UPDATE Players SET second_places = second_places+1 WHERE name = ?;"
+		"UPDATE Decks SET second_places = second_places+1 WHERE title = ?";
+	const char *sql_third_place = 
+		"UPDATE Players SET third_places = third_places+1 WHERE name = ?;"
+		"UPDATE Decks SET third_places = third_places+1 WHERE title = ?";
+	const char *sql_other_finish = 
+		"UPDATE Players SET other_finishes = other_finishes+1 WHERE name = ?;"
+		"UPDATE Decks SET other_finishes = other_finishes+1 WHERE title = ?";
+
+	for(int i=0; i<player_count; i++){
+		switch(ranks[i]){
+		case 1:
+			printf("first!\n");
+			break;
+		}
+	}
+
+	// If no rank list were passed in input and an array was allocated
+	// by `add_game()`, the function owns it and handles the cleanup, 
+	// otherwise the caller must free the memory
+	if(own_ranks){
+		free(ranks);
+	}
 	sqlite3_finalize(stmt);
 	sqlite3_close(db);
-	return 0;
+	return ADDGAME_OK;
 }
 
 int delete_game(){

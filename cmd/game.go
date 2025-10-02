@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"strings"
 	"unsafe"
+	"strconv"
 	timepkg "time"
 
 	"github.com/spf13/cobra"
@@ -56,10 +57,6 @@ func init(){
 func runAddGame() int {
 	playerList := strings.Split(playersCsv,",")
 	deckList   := strings.Split(decksCsv,",")
-	var rankList []string
-	if ranksCsv != "" {
-		rankList = strings.Split(ranksCsv,",")
-	}
 
 	if len(playerList) != len(deckList) {
 		fmt.Println("Number of players must match number of decks")
@@ -93,24 +90,29 @@ func runAddGame() int {
 
 	// Handling optional ranks field. If nothing is provided, nil will be
 	// provided to C.add_game()
-	var cRanks []*C.char
-	var cRanksPtr **C.char
-	if len(rankList) > 0 {
-		cRanks = make([]*C.char, len(rankList))
-		for i, s := range rankList {
-			cRanks[i] = C.CString(s)
+	var cRanks *C.int
+	if ranksCsv != "" {
+		rankStrings := strings.Split(ranksCsv, ",")
+		ranks := make([]C.int, len(rankStrings))
+		for i, string := range rankStrings {
+			val, err := strconv.Atoi(strings.TrimSpace(string))
+			if err != nil {
+				fmt.Printf("Invalid rank value: %s\n", string)
+				return -1;
+			}
+			ranks[i] = C.int(val)
 		}
-		cRanksPtr = (**C.char)(unsafe.Pointer(&cRanks[0]))
+		cRanks = (*C.int)(unsafe.Pointer(&ranks[0]))
 	} else {
-		cRanksPtr = nil
+		cRanks = nil
 	}
 
 	// Calling add_game() from game.h to actually add the game
 	rc := int(C.add_game(
 		(**C.char)(unsafe.Pointer(&cPlayers[0])),
 		(**C.char)(unsafe.Pointer(&cDecks[0])),
-		cRanksPtr,
-		C.ushort(len(playerList)),
+		cRanks,
+		C.size_t(len(playerList)),
 		C.ushort(time),
 		C.longlong(timestamp),
 	))
@@ -122,9 +124,6 @@ func runAddGame() int {
 	for _, s := range cDecks {
 		C.free(unsafe.Pointer(s))
 	}
-	for _, s := range cRanks {
-		C.free(unsafe.Pointer(s))
-	}
 
 	if rc != 0 {
 		fmt.Printf("Game could not be logged\n")
@@ -133,8 +132,8 @@ func runAddGame() int {
 
 	fmt.Printf("Added game: \n")
 	fmt.Printf("\tPlayers:\t%v\n", playerList)
-	if len(rankList) > 0 {
-		fmt.Printf("\tRanks:\t\t%v\n", rankList)
+	if len(ranksCsv) > 0 {
+		fmt.Printf("\tRanks:\t\t%v\n", ranksCsv)
 	}
 	fmt.Printf("\tDecks:\t\t%v\n", deckList)
 	if time > 0 {

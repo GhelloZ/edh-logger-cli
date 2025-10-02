@@ -1,11 +1,16 @@
 #ifndef GAME_H
 #define GAME_H
 
+typedef enum {
+	ADDGAME_OK = 0,
+	ADDGAME_FAILED_ALLOCATION
+} AddGameReturn;
+
 int add_game(
 		char** players,
 		char** decks,
-		char** ranks,
-		unsigned short int count,
+		int* ranks,
+		size_t count,
 		unsigned short int time,
 		long long int timestamp
 		);
