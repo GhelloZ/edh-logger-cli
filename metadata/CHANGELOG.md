@@ -1,7 +1,6 @@
 ## What's new
 Nothing new at the moment
 ## Fixes
-- [x] Fixed partner and companion fetching logic
 - [ ] Adding games properly updates the rank fields for each player and the number of played games
 - [ ] Adding games properly updates the rank fields for each deck and the number of played games
 ## GitHub stuff
