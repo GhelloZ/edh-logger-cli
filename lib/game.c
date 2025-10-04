@@ -121,7 +121,7 @@ int add_game(
 		");"
 		// Updates the number of played games for each player and deck
 		"UPDATE Players SET total_games = total_games+1 WHERE name = ?;"
-		"UPDATE Decks SET total_games = total_games+1 WHERE title = ?";
+		"UPDATE Decks SET total_games = total_games+1 WHERE title = ?;";
 
 	rc = sqlite3_prepare_v2(db, sql_gameplayers, -1, &stmt, NULL);
 	if (rc != SQLITE_OK){
@@ -130,6 +130,7 @@ int add_game(
 		return ADDGAME_FAILED_SQL_PREPARE;
 	}
 
+	sqlite3_exec(db, "BEGIN TRANSACTION;", NULL, NULL, NULL);
 	for (int i=0; i<player_count; i++){
 		sqlite3_bind_int64(stmt, 1, game_id);
 		sqlite3_bind_text(stmt, 2, players[i], -1, SQLITE_STATIC);
@@ -152,6 +153,7 @@ int add_game(
 		}
 		sqlite3_reset(stmt);
 	}
+	sqlite3_exec(db, "COMMIT;", NULL, NULL, NULL);
 
 	const char *sql_win = 
 		"UPDATE Players SET wins = wins+1 WHERE name = ?;"
@@ -166,6 +168,7 @@ int add_game(
 		"UPDATE Players SET other_finishes = other_finishes+1 WHERE name = ?;"
 		"UPDATE Decks SET other_finishes = other_finishes+1 WHERE title = ?;";
 
+	sqlite3_exec(db, "BEGIN TRANSACTION;", NULL, NULL, NULL);
 	for(int i=0; i<player_count; i++){
 		switch(ranks[i]){
 			case 1:
@@ -198,6 +201,7 @@ int add_game(
 		}
 		sqlite3_reset(stmt);
 	}
+	sqlite3_exec(db, "COMMIT", NULL, NULL, NULL);
 
 	// If no rank list were passed in input and an array was allocated
 	// by `add_game()`, the function owns it and handles the cleanup, 
