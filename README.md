@@ -33,7 +33,7 @@ If you're not an Arch Linux user, you can simply pull the binary from the releas
 # Get the latest version number
 VERSION=v$(https://raw.githubusercontent.com/GhelloZ/edh-logger-cli/refs/heads/releases/metadata/VERSION)
 # Dowload the binary from the latest Github release
-wget "https://github.com/GhelloZ/edh-logger-cli/releases/download/${VERSION}/edh
+wget "https://github.com/GhelloZ/edh-logger-cli/releases/download/${VERSION}/edh"
 # Move it to the path to be able to use it system-wide
 # Use sudo if it doesn't work
 mv edh /usr/bin
