@@ -118,10 +118,7 @@ int add_game(
 		" (SELECT player_id FROM Players WHERE name = ?), "
 		" (SELECT deck_id FROM Decks WHERE title = ?), "
 		" ? "
-		");"
-		// Updates the number of played games for each player and deck
-		"UPDATE Players SET total_games = total_games+1 WHERE name = ?;"
-		"UPDATE Decks SET total_games = total_games+1 WHERE title = ?;";
+		");";
 
 	rc = sqlite3_prepare_v2(db, sql_gameplayers, -1, &stmt, NULL);
 	if (rc != SQLITE_OK){
@@ -135,8 +132,6 @@ int add_game(
 		sqlite3_bind_int64(stmt, 1, game_id);
 		sqlite3_bind_text(stmt, 2, players[i], -1, SQLITE_STATIC);
 		sqlite3_bind_text(stmt, 3, decks[i], -1, SQLITE_STATIC);
-		sqlite3_bind_text(stmt, 5, players[i], -1, SQLITE_STATIC);
-		sqlite3_bind_text(stmt, 6, decks[i], -1, SQLITE_STATIC);
 
 		if(ranks != NULL){
 			sqlite3_bind_int(stmt, 4, ranks[i]);
@@ -155,46 +150,84 @@ int add_game(
 	}
 	sqlite3_exec(db, "COMMIT;", NULL, NULL, NULL);
 
-	const char *sql_win = 
-		"UPDATE Players SET wins = wins+1 WHERE name = ?;"
-		"UPDATE Decks SET wins = wins+1 WHERE title = ?;";
-	const char *sql_second_place = 
-		"UPDATE Players SET second_places = second_places+1 WHERE name = ?;"
-		"UPDATE Decks SET second_places = second_places+1 WHERE title = ?;";
-	const char *sql_third_place = 
-		"UPDATE Players SET third_places = third_places+1 WHERE name = ?;"
-		"UPDATE Decks SET third_places = third_places+1 WHERE title = ?;";
-	const char *sql_other_finish = 
-		"UPDATE Players SET other_finishes = other_finishes+1 WHERE name = ?;"
-		"UPDATE Decks SET other_finishes = other_finishes+1 WHERE title = ?;";
+	// Players stats queies
+	const char *sql_player_win = 
+		"UPDATE Players SET wins=wins+1,total_games=total_games+1 WHERE name=?;";
+	const char *sql_player_second_place=
+		"UPDATE Players SET second_places=second_places+1,total_games=total_games+1 WHERE name=?;";
+	const char *sql_player_third_place=
+		"UPDATE Players SET third_places=third_places+1,total_games=total_games+1 WHERE name=?;";
+	const char *sql_player_other_finish=
+		"UPDATE Players SET other_finishes=other_finishes+1,total_games=total_games+1 WHERE name=?;";
 
+	// Decks stats queries
+	const char *sql_deck_win = 
+		"UPDATE Decks SET wins=wins+1,total_games=total_games+1 WHERE title=?;";
+	const char *sql_deck_second_place=
+		"UPDATE Decks SET second_places=second_places+1,total_games=total_games+1 WHERE title=?;";
+	const char *sql_deck_third_place=
+		"UPDATE Decks SET third_places=third_places+1,total_games=total_games+1 WHERE title=?;";
+	const char *sql_deck_other_finish=
+		"UPDATE Decks SET other_finishes=other_finishes+1,total_games=total_games+1 WHERE title=?;";
+	
 	sqlite3_exec(db, "BEGIN TRANSACTION;", NULL, NULL, NULL);
 	for(int i=0; i<player_count; i++){
+		// Player stats query gets prepared 
 		switch(ranks[i]){
 			case 1:
-				rc = sqlite3_prepare_v2(db, sql_win, -1, &stmt, NULL);
+				rc = sqlite3_prepare_v2(db, sql_player_win, -1, &stmt, NULL);
 				break;
 			case 2:
-				rc = sqlite3_prepare_v2(db, sql_second_place, -1, &stmt, NULL);
+				rc = sqlite3_prepare_v2(db, sql_player_second_place, -1, &stmt, NULL);
 				break;
 			case 3:
-				rc = sqlite3_prepare_v2(db, sql_third_place, -1, &stmt, NULL);
+				rc = sqlite3_prepare_v2(db, sql_player_third_place, -1, &stmt, NULL);
 				break;
 			default:
-				rc = sqlite3_prepare_v2(db, sql_other_finish, -1, &stmt, NULL);
+				rc = sqlite3_prepare_v2(db, sql_player_other_finish, -1, &stmt, NULL);
 		}
 
 		if(rc != SQLITE_OK){
-			fprintf(stderr, "Failed to prepare GamePlayers ranks update statement entry: %s\n", sqlite3_errmsg(db));
+			fprintf(stderr, "Failed to prepare Players ranks update statement entry: %s\n", sqlite3_errmsg(db));
 			return ADDGAME_FAILED_SQL_PREPARE;
 		}
 
 		sqlite3_bind_text(stmt, 1, players[i], -1, SQLITE_STATIC);
-		sqlite3_bind_text(stmt, 2, decks[i], -1, SQLITE_STATIC);
 
 		rc = sqlite3_step(stmt);
 		if (rc != SQLITE_DONE){
-			fprintf(stderr, "Failed to insert GamePlayers ranks update statement: %s\n", sqlite3_errmsg(db));
+			fprintf(stderr, "Failed to insert Players ranks update statement: %s\n", sqlite3_errmsg(db));
+			sqlite3_finalize(stmt);
+            sqlite3_close(db);
+            return ADDGAME_FAILED_SQL_PREPARE;
+		}
+		sqlite3_reset(stmt);
+
+		// Deck stats query gets prepared 
+		switch(ranks[i]){
+			case 1:
+				rc = sqlite3_prepare_v2(db, sql_deck_win, -1, &stmt, NULL);
+				break;
+			case 2:
+				rc = sqlite3_prepare_v2(db, sql_deck_second_place, -1, &stmt, NULL);
+				break;
+			case 3:
+				rc = sqlite3_prepare_v2(db, sql_deck_third_place, -1, &stmt, NULL);
+				break;
+			default:
+				rc = sqlite3_prepare_v2(db, sql_deck_other_finish, -1, &stmt, NULL);
+		}
+
+		if(rc != SQLITE_OK){
+			fprintf(stderr, "Failed to prepare Decks ranks update statement entry: %s\n", sqlite3_errmsg(db));
+			return ADDGAME_FAILED_SQL_PREPARE;
+		}
+
+		sqlite3_bind_text(stmt, 1, decks[i], -1, SQLITE_STATIC);
+
+		rc = sqlite3_step(stmt);
+		if (rc != SQLITE_DONE){
+			fprintf(stderr, "Failed to insert Decks ranks update statement: %s\n", sqlite3_errmsg(db));
 			sqlite3_finalize(stmt);
             sqlite3_close(db);
             return ADDGAME_FAILED_SQL_PREPARE;
