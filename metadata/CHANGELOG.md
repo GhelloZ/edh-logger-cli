@@ -1,7 +1,7 @@
 ## What's new
 - [x] Players can be renamed with the `player rename` command
 ## Fixes
-none
+- [ ] Fix ON DELETE actions (for some reason they don't work. It doesn't really affect how the library works since i don't want the removal of players or decks to automatically delete rows from other tables, but it's still weird and probably worth to check out)
 ## GitHub stuff
 - [ ] Fix workflows
 ## TODO

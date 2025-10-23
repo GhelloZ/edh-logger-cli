@@ -99,8 +99,8 @@ int init_db(){
 		"    second_places   INTEGER DEFAULT 0,"
 		"    third_places    INTEGER DEFAULT 0,"
 		"    other_finishes  INTEGER DEFAULT 0,"
-		"    owner_id        INTEGER NOT NULL,"
-		"    FOREIGN KEY(owner_id) REFERENCES Players(player_id) ON DELETE SET NULL"
+		"    owner_id        INTEGER NOT NULL DEFAULT 0,"
+		"    FOREIGN KEY(owner_id) REFERENCES Players(player_id) ON DELETE SET DEFAULT"
 		");"
 		/* GamePlayers: which player used which deck in a game */
 		"CREATE TABLE IF NOT EXISTS GamePlayers ("
