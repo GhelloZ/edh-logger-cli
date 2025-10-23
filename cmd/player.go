@@ -18,6 +18,7 @@ import (
 
 var(
 	playerName	string
+	newName		string
 	longFlag	int
 )
 
@@ -30,6 +31,7 @@ func init(){
 	}
 	RootCmd.AddCommand(playerCmd)
 
+	// player add
 	addPlayerCmd := &cobra.Command{
 		Use:	"add",
 		Short:	"Add a new player to the database",
@@ -44,26 +46,77 @@ func init(){
 	addPlayerCmd.Flags().IntVarP(&longFlag, "z-absurdly-long-flag-because-i-wanted-to-test-how-cobra-handles-it", "z", 0, "random flag i made to see how cobra handles displaying really long flags and description because why not. Did you know that otters have a favourite rock? it may be that it's not otters that have favourite rocks but it's some other animal, but english is not my first language so that's probably he reason and i'm mistranslating from my language")
 
 	playerCmd.AddCommand(addPlayerCmd)
+
+	// player delete
+	deletePlayerCmd := &cobra.Command{
+		Use:	"delete",
+		Short:	"Delete player",
+		Long:	"Deletes a player from the registered players. Games in which he participated will not be deleted so that the stats of other players won't be altered",
+		Run:	func (cmd *cobra.Command, args []string){
+			runDeletePlayer()
+		},
+	}
+
+	deletePlayerCmd.Flags().StringVarP(&playerName, "name","n","", "Name of the player")
+	deletePlayerCmd.MarkFlagRequired("name")
+
+	playerCmd.AddCommand(deletePlayerCmd)
+
+	// player update
+	renamePlayerCmd := &cobra.Command{
+		Use:	"rename",
+		Short:	"Rename player",
+		Long:	"Renames a player from the registered players. Games in which he participated will not be renamed so that the stats of other players won't be altered",
+		Run:	func (cmd *cobra.Command, args []string){
+			runRenamePlayer()
+		},
+	}
+
+	renamePlayerCmd.Flags().StringVarP(&playerName, "current-name","c","", "Current name of the player")
+	renamePlayerCmd.Flags().StringVarP(&newName, "new-name","n","", "New name for the player")
+	renamePlayerCmd.MarkFlagRequired("current-name")
+	renamePlayerCmd.MarkFlagRequired("new-name")
+
+	playerCmd.AddCommand(renamePlayerCmd)
 }
 
 func runAddPlayer() int {
 	name := strings.TrimSpace(playerName)
 
-	if name == "" {
-		fmt.Printf("Player name is empty, please provide one")
-		return -1
-	}
-
 	cName := C.CString(name)
 	defer C.free(unsafe.Pointer(cName))
 
 	rc := int(C.add_player(cName))
-	if int(rc) != 0 {
+	if rc != 0 {
 		fmt.Printf("Failed to store player into the database\n")
 		return rc
 	}
 
 	fmt.Printf("Added %s to database\n", name)
 
+	return rc
+}
+
+func runDeletePlayer() int {
+	rc := 0
+	return rc
+}
+
+func runRenamePlayer() int {
+	currentName := strings.TrimSpace(playerName)
+	newName := strings.TrimSpace(newName)
+
+	cCurrentName := C.CString(currentName)
+	defer C.free(unsafe.Pointer(cCurrentName))
+	cNewName := C.CString(newName)
+	defer C.free(unsafe.Pointer(cNewName))
+
+	rc := int(C.rename_player(cCurrentName, cNewName))
+	if rc != 0 {
+		fmt.Printf("Failed to rename the player\n")
+		return rc
+	}
+
+	fmt.Printf("Player %s was succesfully renamed to %s\n", currentName, newName)
 	return rc
 }

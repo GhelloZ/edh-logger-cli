@@ -1,19 +1,20 @@
 ## What's new
-- [x] Now adding a new game entry updates the PlayerDeckStats table with the statistic of the player with the deck used by him
+- [x] Players can be renamed with the `player rename` command
 ## Fixes
+none
 ## GitHub stuff
 - [ ] Fix workflows
 ## TODO
 ### Libraries stuff
 - [ ] Add `delete_deck()` function
 - [ ] Add `update_deck()` function
-- [ ] Add `rename_player()` function
+- [x] Add `rename_player()` function
 - [ ] Add `delete_player()` function
 - [ ] Add `list_games()` function
 - [ ] Add `delete_dame()` function
 ### Logging commands
 - [ ] Add `player rename` command
-- [ ] Add `player delete` command
+- [x] Add `player delete` command
 - [ ] Add `deck update` command
 - [ ] Add `deck delete` command
 - [ ] Add `game list` command
