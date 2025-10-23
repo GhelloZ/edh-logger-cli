@@ -29,7 +29,7 @@ int add_game(
 	 *								Decks used by the players in the game. Must be the same number of players specified
 	 *								and in the same order
 	 */
-	fprintf(stderr, "\033[33mNot fully implemented\033[0m\n");
+	// fprintf(stderr, "\033[33mNot fully implemented\033[0m\n");
 
 	if (!players || !decks) {
 		fprintf(stderr, "game.c: add_game: players and decks must not be NULL\n");
@@ -110,7 +110,9 @@ int add_game(
 
 	sqlite3_int64 game_id = sqlite3_last_insert_rowid(db);
 
-	// GamePlayers
+	/***************
+	 * GamePlayers *
+	 ***************/
 	const char* sql_gameplayers = 
 		// Inserts the players of the game in the GamePlayers table
 		"INSERT INTO GamePlayers (game_id, player_id, deck_id, rank)"
@@ -235,6 +237,80 @@ int add_game(
 		sqlite3_reset(stmt);
 	}
 	sqlite3_exec(db, "COMMIT", NULL, NULL, NULL);
+
+	/*******************
+	 * PlayerDeckStats *
+	 *******************/
+	const char* sql_player_deck_win = 
+		"INSERT INTO PlayerDeckStats (player_id,deck_id,total_games,wins)"
+		"VALUES("
+    	"	(SELECT player_id FROM Players WHERE name = ?),"
+    	"	(SELECT deck_id FROM Decks WHERE title = ?)"
+		"	,1,1"
+		")"
+		"ON CONFLICT(player_id,deck_id)"
+		"DO UPDATE SET total_games=total_games+1,wins=wins+1;";
+	const char* sql_player_deck_second_place = 
+		"INSERT INTO PlayerDeckStats (player_id,deck_id,total_games,second_places)"
+		"VALUES("
+    	"	(SELECT player_id FROM Players WHERE name = ?),"
+    	"	(SELECT deck_id FROM Decks WHERE title = ?)"
+		"	,1,1"
+		")"
+		"ON CONFLICT(player_id,deck_id)"
+		"DO UPDATE SET total_games=total_games+1,second_places=wins+1;";
+	const char* sql_player_deck_third_place = 
+		"INSERT INTO PlayerDeckStats (player_id,deck_id,total_games,third_places)"
+		"VALUES("
+    	"	(SELECT player_id FROM Players WHERE name = ?),"
+    	"	(SELECT deck_id FROM Decks WHERE title = ?)"
+		"	,1,1"
+		")"
+		"ON CONFLICT(player_id,deck_id)"
+		"DO UPDATE SET total_games=total_games+1,third_places=wins+1;";
+	const char* sql_player_deck_other_finish = 
+		"INSERT INTO PlayerDeckStats (player_id,deck_id,total_games,other_finishes)"
+		"VALUES("
+    	"	(SELECT player_id FROM Players WHERE name = ?),"
+    	"	(SELECT deck_id FROM Decks WHERE title = ?)"
+		"	,1,1"
+		")"
+		"ON CONFLICT(player_id,deck_id)"
+		"DO UPDATE SET total_games=total_games+1,other_finishes=wins+1;";
+
+	for(int i=0;i<player_count;i++){
+		switch(ranks[i]){
+			case 1:
+				rc = sqlite3_prepare_v2(db,sql_player_deck_win, -1, &stmt, NULL);
+				break;
+			case 2:
+				rc = sqlite3_prepare_v2(db,sql_player_deck_second_place, -1, &stmt, NULL);
+				break;
+			case 3:
+				rc = sqlite3_prepare_v2(db,sql_player_deck_third_place, -1, &stmt, NULL);
+				break;
+			default:
+				rc = sqlite3_prepare_v2(db,sql_player_deck_other_finish, -1, &stmt, NULL);
+		}
+
+		if(rc != SQLITE_OK){
+			fprintf(stderr, "Failed to prepare Player-Deck stats update entry: %s\n", sqlite3_errmsg(db));
+			return ADDGAME_FAILED_SQL_PREPARE;
+		}
+
+		sqlite3_bind_text(stmt, 1, players[i], -1, SQLITE_STATIC);
+		sqlite3_bind_text(stmt, 2, decks[i], -1, SQLITE_STATIC);
+
+		rc = sqlite3_step(stmt);
+		if (rc != SQLITE_DONE){
+			fprintf(stderr, "Failed to insert Player-Decks ranks update statement: %s\n", sqlite3_errmsg(db));
+			sqlite3_finalize(stmt);
+            sqlite3_close(db);
+            return ADDGAME_FAILED_SQL_PREPARE;
+		}
+
+		sqlite3_reset(stmt);
+	}
 
 	// If no rank list were passed in input and an array was allocated
 	// by `add_game()`, the function owns it and handles the cleanup, 

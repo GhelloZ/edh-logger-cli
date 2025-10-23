@@ -1,10 +1,7 @@
 ## What's new
-Nothing new at the moment
+- [x] Now adding a new game entry updates the PlayerDeckStats table with the statistic of the player with the deck used by him
 ## Fixes
-- [x] Adding games properly updates the rank fields for each player and the number of played games
-- [x] Adding games properly updates the rank fields for each deck and the number of played games
 ## GitHub stuff
-- [x] Added installation scripts that pulls the binary from github as an alternative to compiling the project
 - [ ] Fix workflows
 ## TODO
 ### Libraries stuff
