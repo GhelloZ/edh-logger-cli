@@ -85,7 +85,7 @@ int add_player(const char* name){
 	return ADDPLAYER_OK;
 }
 
-int delete_player(){
+int delete_player(const char* name){
 	fprintf(stderr,"Not yet implemented\n");
 	return -1;
 }
@@ -94,8 +94,6 @@ int rename_player(
 		const char* current_name,
 		const char* new_name
 		){
-	fprintf(stderr, "\033[33mNot fully implemented\033[0m\n");
-
 	// We assume that the current name is already valid since the only way to
 	// add one is through the add_player() function that already validates it
 

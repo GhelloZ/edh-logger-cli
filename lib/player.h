@@ -12,6 +12,15 @@ typedef enum {
 } AddPlayerReturn;
 
 typedef enum {
+	DELETEPLAYER_OK = 0,			// Success
+	DELETEPLAYER_EXISTS,			// Player with that name already exists
+	DELETEPLAYER_INVALID_NAME,		// Invalid name provided
+	DELETEPLAYER_NO_NAME,			// No name provided
+	DELETEPLAYER_VALIDATION_ERROR,	// Regex error
+	DELETEPLAYER_DB_ERROR			// Database error
+} DeletePlayerReturn;
+
+typedef enum {
 	RENAMEPLAYER_OK = 0,			// Success
 	RENAMEPLAYER_EXISTS,			// Player with that name already exists
 	RENAMEPLAYER_INVALID_NAME,		// Invalid name provided
@@ -21,7 +30,7 @@ typedef enum {
 } RenamePlayerReturn;
 
 int add_player(const char* name);
-int delete_player();
+int delete_player(const char* name);
 int rename_player(
 		const char* current_name,
 		const char* new_name
