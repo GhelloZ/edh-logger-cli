@@ -94,9 +94,13 @@ int rename_player(
 		const char* current_name,
 		const char* new_name
 		){
+	// Current name validation
 	// We assume that the current name is already valid since the only way to
-	// add one is through the add_player() function that already validates it
-
+	// add one is through the add_player() function that already validates it.
+	// Also i just tried doing some basic SQL injections but apparently the
+	// library already handles at least some basic ones, so i'm leaving this as
+	// is until i manage to demostrate that it doesn't work and then I'll also
+	// probably learn to use the github CVE report tool.
 	if (!current_name) {
 		return RENAMEPLAYER_NO_NAME;
 	}
@@ -134,13 +138,49 @@ int rename_player(
 		return ADDPLAYER_DB_ERROR;
 	}
 
+	sqlite3_stmt *stmt = NULL;
+
+	// Check if the user exists
+	const char* sql_check_player = 
+		"SELECT * FROM Players WHERE name = ?;";
+
+	rc = sqlite3_prepare_v2(db, sql_check_player, -1, &stmt, NULL);
+	if (rc != SQLITE_OK) {
+		fprintf(stderr, "check_player: prepare failed: %s\n", sqlite3_errmsg(db));
+		if (stmt) sqlite3_finalize(stmt);
+		sqlite3_close(db);
+		return RENAMEPLAYER_DB_ERROR;
+	}
+
+	// Bind the name. Use SQLITE_TRANSIENT so SQLite makes a copy immediately (safe lifetime).
+	rc = sqlite3_bind_text(stmt, 1, current_name, -1, (sqlite3_destructor_type)SQLITE_TRANSIENT);
+	if (rc != SQLITE_OK) {
+		fprintf(stderr, "rename_player: new_name bind failed: %s\n", sqlite3_errmsg(db));
+		sqlite3_finalize(stmt);
+		sqlite3_close(db);
+		return RENAMEPLAYER_DB_ERROR;
+	}
+
+	rc = sqlite3_step(stmt);
+	if(rc == SQLITE_DONE){
+		sqlite3_finalize(stmt);
+		sqlite3_close(db);
+		return RENAMEPLAYER_DOESNT_EXIST;
+	}  else if(rc != SQLITE_ROW){
+		fprintf(stderr, "sqlite error: %s\n",sqlite3_errmsg(db));
+		sqlite3_finalize(stmt);
+		sqlite3_close(db);
+		return RENAMEPLAYER_DB_ERROR;
+	}
+
+	// Player renaming logic
 	const char* sql_rename_player = 
 		"UPDATE Players SET name = ? WHERE name = ?;";
 
-	sqlite3_stmt *stmt = NULL;
+	stmt = NULL;
 	rc = sqlite3_prepare_v2(db, sql_rename_player, -1, &stmt, NULL);
 	if (rc != SQLITE_OK) {
-		fprintf(stderr, "add_player: prepare failed: %s\n", sqlite3_errmsg(db));
+		fprintf(stderr, "rename_player: prepare failed: %s\n", sqlite3_errmsg(db));
 		if (stmt) sqlite3_finalize(stmt);
 		sqlite3_close(db);
 		return RENAMEPLAYER_DB_ERROR;

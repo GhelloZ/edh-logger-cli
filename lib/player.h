@@ -22,7 +22,9 @@ typedef enum {
 
 typedef enum {
 	RENAMEPLAYER_OK = 0,			// Success
-	RENAMEPLAYER_EXISTS,			// Player with that name already exists
+	RENAMEPLAYER_EXISTS,			// Player with that new name already exists
+	RENAMEPLAYER_DOESNT_EXIST,		// Player with the specified current name
+									// doesn't exist.
 	RENAMEPLAYER_INVALID_NAME,		// Invalid name provided
 	RENAMEPLAYER_NO_NAME,			// No name provided
 	RENAMEPLAYER_VALIDATION_ERROR,	// Regex error

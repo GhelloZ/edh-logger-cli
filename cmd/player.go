@@ -98,7 +98,18 @@ func runAddPlayer() int {
 }
 
 func runDeletePlayer() int {
-	rc := 0
+	name := strings.TrimSpace(playerName)
+
+	cName := C.CString(name)
+	defer C.free(unsafe.Pointer(cName))
+
+	rc := int(C.delete_player(cName))
+	if rc != 0 {
+		fmt.Printf("Failed to delete player %s\n", name)
+		return rc
+	}
+
+	fmt.Printf("Player %s was succesfully deleted\n", name)
 	return rc
 }
 
