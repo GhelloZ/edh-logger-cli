@@ -18,6 +18,7 @@ blah blah use it like this blah blah
 - [make](https://www.gnu.org/software/make/#download)
 - [sqlite](https://sqlite.org/src/doc/trunk/README.md)
 - [libcurl](https://curl.se/docs/install.html)
+
 You must install these manually, otherwise the package can't be compiled
 
 # Installation
