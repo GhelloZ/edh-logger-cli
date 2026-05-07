@@ -42,7 +42,7 @@ mv edh /usr/bin
 # Build
 1. First of all, clone the repo (use the release branch for a probably stable version)
 2. `cd` into it
-3. run `make`. the `edh` binary will be built in `./build/edh`, you may move it wherever you'd like in your PATH to make it accessible everywhere
+3. Run `make`. The `edh` binary will be built in `./build/edh`, you may move it wherever you'd like in your PATH to make it accessible everywhere
 ```bash
 git clone https://github.com/GhelloZ/edh-logger-cli/tree/releases.git
 cd edh-logger-cli
